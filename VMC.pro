@@ -11,7 +11,8 @@ SOURCES += main.cpp \
     ho0.cpp \
     ho1.cpp \
     ho2.cpp \
-    onedimensionalslater.cpp
+    onedimensionalslater.cpp \
+    slater.cpp
 
 HEADERS += \
     metropolis.h \
@@ -21,6 +22,7 @@ HEADERS += \
     ho0.h \
     ho1.h \
     ho2.h \
-    onedimensionalslater.h
+    onedimensionalslater.h \
+    slater.h
 
     LIBS+= -larmadillo -lblas -llapack

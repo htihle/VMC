@@ -128,3 +128,4 @@ void OneDimensionalSlater::setUpForMetropolis(arma::mat &x)
     x = a*randn<mat>(this->NumberOfParticles,this->NumberOfDimensions);
     this->getSlaterInverse(x);
 }
+
