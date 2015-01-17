@@ -1,0 +1,48 @@
+#include "expectationvalues.h"
+#include <armadillo>
+
+using namespace arma;
+
+ExpectationValues::ExpectationValues(int numberofev, WaveFunction *wave)
+{
+    numberofEVs = numberofev;
+    ev = zeros<vec>(numberofEVs);
+    this->wave =wave;
+    LocalEnergy = 0;
+}
+ExpectationValues::ExpectationValues()
+{
+}
+
+void ExpectationValues::Sample(mat &xnew,mat &x, int WhichParticle)
+{
+    x = xnew;
+    wave->updateSlaterInverse(x,WhichParticle);
+    vec f=zeros<vec>(numberofEVs);
+    LocalEnergy = calculateEnergy(x);
+    f(0) = LocalEnergy;
+    f(1) = LocalEnergy*LocalEnergy;
+    f(2) = x(0);
+    f(3) = x(0)*x(0);
+    this->ev +=f;
+}
+
+void ExpectationValues::ReSample(mat &xnew, mat &x)
+{
+    xnew = x;
+    vec f=zeros<vec>(numberofEVs);
+    f(0) = LocalEnergy;
+    f(1) = LocalEnergy*LocalEnergy;
+    f(2) = x(0);
+    f(3) = x(0)*x(0);
+    this->ev +=f;
+}
+
+double ExpectationValues::calculateEnergy(vec x) {
+    double sum = 0;
+    for(int i = 0;i<wave->NumberOfParticles;i++)
+    {
+        sum += 1.0/2*x(i)*x(i);
+    }
+    return -wave->laplacianLog(x)/2.0 +sum;
+}
