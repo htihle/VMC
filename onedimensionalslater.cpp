@@ -3,8 +3,7 @@
 
 using namespace arma;
 
-OneDimensionalSlater::OneDimensionalSlater(double a, int N) : WaveFunction(a,N,1)
-{
+OneDimensionalSlater::OneDimensionalSlater(double a, int N) : WaveFunction(a,N,1) {
     this->a = a;
     myorbital[0] = new HO0();
     myorbital[1] = new HO1();
@@ -16,16 +15,13 @@ OneDimensionalSlater::OneDimensionalSlater(double a, int N) : WaveFunction(a,N,1
 
 
 
-double OneDimensionalSlater::laplacianLog(vec x)
-{
-
+double OneDimensionalSlater::laplacianLog(vec x) {
     double analytic = this->slaterAnalyticalLaplacianLog(x);
 //    double num = this->slaterNumericalLaplacianLog(x);
     return analytic;
 }
 
-bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle)
-{
+bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle) {
     xnew = x;
     vec num = randn<vec>(1);
     vec num2 = randu<vec>(2);
@@ -33,8 +29,7 @@ bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle)
     xnew.row(WhichParticle) = x.row(WhichParticle) + 2.0/NumberOfParticles*a*num(0);    //newstep(x)
 
     Rsd = 0;
-    for(int j = 0;j<NumberOfParticles;j++)
-    {
+    for(int j = 0;j<NumberOfParticles;j++) {
         Rsd += myorbital[j]->eval(xnew(WhichParticle),a)*SlaterInverse(j,WhichParticle);
     }
     bool accept = false;
@@ -45,32 +40,26 @@ bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle)
     return accept;
 }
 
-double OneDimensionalSlater::evaluateSlater(vec x)
-{
+double OneDimensionalSlater::evaluateSlater(vec x) {
     return det(calculateSlater(x));
 }
 
-mat OneDimensionalSlater::calculateSlater(vec x)
-{
+mat OneDimensionalSlater::calculateSlater(vec x) {
     mat Slater = zeros<mat>(NumberOfParticles,NumberOfParticles);
 
-    for(int i = 0;i<NumberOfParticles;i++)
-    {
-        for(int j = 0; j<NumberOfParticles;j++)
-        {
+    for(int i = 0;i<NumberOfParticles;i++) {
+        for(int j = 0; j<NumberOfParticles;j++) {
             Slater(i,j) = myorbital[j]->eval(x(i),a);
         }
     }
     return Slater;
 }
 
-double OneDimensionalSlater::slaterNumericalLaplacianLog(vec x)
-{
+double OneDimensionalSlater::slaterNumericalLaplacianLog(vec x) {
     double h= 0.0001;
     vec mod = zeros<vec>(NumberOfParticles);
     double sum = 0;
-    for(int i = 0;i<NumberOfParticles;i++)
-    {
+    for(int i = 0;i<NumberOfParticles;i++) {
         mod(i)+=h;
         sum += this->evaluateSlater(x+mod) +this->evaluateSlater(x-mod);
         mod(i)=0;
@@ -81,29 +70,24 @@ double OneDimensionalSlater::slaterNumericalLaplacianLog(vec x)
     return sum;
 }
 
-void OneDimensionalSlater::getSlaterInverse(arma::vec x)
-{
+void OneDimensionalSlater::getSlaterInverse(arma::vec x) {
     SlaterInverse = this->calculateSlater(x);
     SlaterInverse = inv(SlaterInverse);
 }
 
-double OneDimensionalSlater::slaterAnalyticalLaplacianLog(arma::vec x)
-{
+double OneDimensionalSlater::slaterAnalyticalLaplacianLog(arma::vec x) {
     // we should keep the laplacian wrt all the different particles separately and update only
     // the ones we have moved (or is that correct?)
     double sum = 0;
-    for(int i =0; i<NumberOfParticles;i++)
-    {
-        for(int j = 0;j<NumberOfParticles;j++)
-        {
+    for(int i =0; i<NumberOfParticles;i++) {
+        for(int j = 0;j<NumberOfParticles;j++) {
             sum += myorbital[j]->laplacian(x(i),a)*SlaterInverse(j,i); //for some reason j and i are switched
         }
     }
     return sum;
 }
 
-void OneDimensionalSlater::updateSlaterInverse(arma::vec x, int i)
-{
+void OneDimensionalSlater::updateSlaterInverse(arma::vec x, int i) {
     mat oldSlater = SlaterInverse;
     for (int k = 0;k<NumberOfParticles; k++) {
         for (int j = 0; j<NumberOfParticles; j++) {
@@ -121,8 +105,7 @@ void OneDimensionalSlater::updateSlaterInverse(arma::vec x, int i)
     }
 }
 
-void OneDimensionalSlater::setUpForMetropolis(arma::mat &x)
-{
+void OneDimensionalSlater::setUpForMetropolis(arma::mat &x) {
     acceptanceCounter = 0;
     arma_rng::set_seed_random(); // not sure if this helps
     x = a*randn<mat>(this->NumberOfParticles,this->NumberOfDimensions);

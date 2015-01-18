@@ -14,7 +14,7 @@ using namespace arma;
 int main()
 {
     int N = 100;    //# of different a's
-    int n = 100000;  //# of iterations in metropolis
+    int n = 5e5;  //# of iterations in metropolis
     //WaveFunction wave(0.5,3);
     OneDimensionalSlater wave(0.5,3);
     ExpectationValues expect(4,&wave);
@@ -30,7 +30,7 @@ int main()
         cout << "Variance in energy: " << en(1)-en(0)*en(0)<< endl;
         cout << "Energy: " << en(0) << endl;
         cout << "meanpos: " << en(2) << endl;
-        cout << "Stddev: " << sqrt(en(3) -en(2)*en(2))<< endl;
+        cout << "Stddev: " << sqrt(en(3) -en(2)*en(2))<< endl << endl;
     }
     return 0;
 }

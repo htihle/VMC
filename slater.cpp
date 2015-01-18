@@ -1,18 +1,24 @@
-#include "slater.h"
+#include <slater.h>
 #include <armadillo>
-using namespace arma;
-Slater::Slater(double a, int N) : WaveFunction(a,N,1)
-{
+
+using arma::mat;
+using arma::vec;
+using arma::randn;
+using arma::randu;
+using arma::zeros;
+
+
+Slater::Slater(double a, int N) : WaveFunction(a,N,1) {
     this->a = a;
     this->whichSlater = 0;
     this->splitSlater = 2;
-    // myorbital[0] = new HO0();
-    // myorbital[1] = new HO1();
-    // myorbital[2] = new HO2();
+     myorbital[0] = new HO0();
+     myorbital[1] = new HO1();
+     myorbital[2] = new HO2();
     NumberOfParticles = N/2;
     NumberOfDimensions = 1;
 }
-double Slater::laplacianLog(vec x)
+double Slater::laplacianLog(mat x)
 {
     double analytic = this->slaterAnalyticalLaplacianLog(x);
     // double num = this->slaterNumericalLaplacianLog(x);
@@ -38,10 +44,10 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle)
     }
     return accept;
 }
-double Slater::evaluateSlater(vec x) {
+double Slater::evaluateSlater(mat x) {
     return det(calculateSlater(x));
 }
-mat Slater::calculateSlater(vec x) {
+mat Slater::calculateSlater(mat x) {
     mat Slater = zeros<mat>(NumberOfParticles,NumberOfParticles);
     for(int i = 0;i<NumberOfParticles;i++) {
         for(int j = 0; j<NumberOfParticles;j++) {
@@ -50,7 +56,7 @@ mat Slater::calculateSlater(vec x) {
     }
     return Slater;
 }
-double Slater::slaterNumericalLaplacianLog(vec x)
+double Slater::slaterNumericalLaplacianLog(mat x)
 {
     double h= 0.0001;
     vec mod = zeros<vec>(NumberOfParticles);
@@ -66,14 +72,14 @@ double Slater::slaterNumericalLaplacianLog(vec x)
     sum/=h*h;
     return sum;
 }
-void Slater::getSlaterInverse(arma::vec x)
+void Slater::getSlaterInverse(mat x)
 {
     for (int i = 0; i < splitSlater; i++) {
         slaterInverse[i] = this->calculateSlater(x);
         slaterInverse[i] = inv(slaterInverse[i]);
     }
 }
-double Slater::slaterAnalyticalLaplacianLog(arma::vec x)
+double Slater::slaterAnalyticalLaplacianLog(mat x)
 {
     // we should keep the laplacian wrt all the different particles separately and update only
     // the ones we have moved (or is that correct?)
@@ -87,7 +93,7 @@ double Slater::slaterAnalyticalLaplacianLog(arma::vec x)
     }
     return sum;
 }
-void Slater::updateSlaterInverse(arma::vec x, int i)
+void Slater::updateSlaterInverse(mat x, int i)
 {
     mat oldSlater = slaterInverse[whichSlater];
     for (int k = 0;k<NumberOfParticles; k++) {
@@ -105,10 +111,10 @@ void Slater::updateSlaterInverse(arma::vec x, int i)
         }
     }
 }
-void Slater::setUpForMetropolis(arma::mat &x)
+void Slater::setUpForMetropolis(mat &x)
 {
     acceptanceCounter = 0;
-    arma_rng::set_seed_random(); // not sure if this helps
+    arma::arma_rng::set_seed_random(); // not sure if this helps
     x = a*randn<mat>(this->NumberOfParticles,this->NumberOfDimensions);
     this->getSlaterInverse(x);
 }
