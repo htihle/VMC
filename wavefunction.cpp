@@ -12,29 +12,29 @@ WaveFunction::WaveFunction(double a, int N, int Ndim)
 }
 
 
-double WaveFunction::laplacianLog(vec x)
-{
-    cout << " error, in parent class 'Wavefunction' " << endl;
-    return 0;
-}
+//double WaveFunction::laplacianLog(arma::mat x)
+//{
+//    cout << " error, in parent class 'Wavefunction' 1" << endl;
+//    return 0;
+//}
 
-bool WaveFunction::newStep(mat &xnew, mat x,int &WhichParticle)
-{
-    cout << " error, in parent class 'Wavefunction' " << endl;
-    return true;
-}
+//bool WaveFunction::newStep(mat &xnew, mat x,int &WhichParticle)
+//{
+//    cout << " error, in parent class 'Wavefunction' 2" << endl;
+//    return true;
+//}
 
-void WaveFunction::getSlaterInverse(arma::vec x)
-{
-    cout << " error, in parent class 'Wavefunction' " << endl;
-}
+//void WaveFunction::getSlaterInverse(arma::vec x)
+//{
+//    cout << " error, in parent class 'Wavefunction' " << endl;
+//}
 
-void WaveFunction::updateSlaterInverse(arma::vec x, int i)
-{
-    cout << " error, in parent class 'Wavefunction' " << endl;
-}
+//void WaveFunction::updateSlaterInverse(arma::mat x, int i)
+//{
+//    cout << " error, in parent class 'Wavefunction' 3" << endl;
+//}
 
-void WaveFunction::setUpForMetropolis(arma::mat &x)
-{
-    cout << " error, in parent class 'Wavefunction' " << endl;
-}
+//void WaveFunction::setUpForMetropolis(arma::mat &x)
+//{
+//    cout << " error, in parent class 'Wavefunction' 4" << endl;
+//}

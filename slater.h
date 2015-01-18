@@ -4,22 +4,22 @@
 #include <ho0.h>
 #include <ho1.h>
 #include <ho2.h>
+#include <h1s.h>
 #include <armadillo>
 
 
 class Slater : public WaveFunction {
 
 public:
-    int       NumberOfParticles; // Number of particles in each slater, i.e. numberOfTotalParticles/2.
-    int       NumberOfDimensions;
-    int       acceptanceCounter;
+//    int       NumberOfParticles; // Number of particles in each slater, i.e. numberOfTotalParticles/2.
+//    int       NumberOfDimensions;
     int       whichSlater;
     int       splitSlater;
     double    a,Rsd;
     Orbital*  myorbital[5];
     arma::mat slaterInverse[2];
 
-    Slater(double a, int N);
+    Slater(double a, int N,int Ndim);
 
     bool      newStep                     (arma::mat &xnew, arma::mat x, int &whichParticle);
     double    laplacianLog                (arma::mat x);
@@ -29,5 +29,5 @@ public:
     void      updateSlaterInverse         (arma::mat x, int i);
     void      setUpForMetropolis          (arma::mat &x);
     void      getSlaterInverse            (arma::mat x);
-    arma::mat calculateSlater             (arma::mat x);
+    arma::mat calculateSlater             (arma::mat x, int upordown);
 };

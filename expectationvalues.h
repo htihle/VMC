@@ -14,7 +14,7 @@ public:
     ExpectationValues();
     void Sample(arma::mat &xnew, arma::mat &x, int WhichParticle);
     void ReSample(arma::mat &xnew,arma::mat &x);
-    double calculateEnergy(arma::vec x);
+    double calculateEnergy(arma::mat x);
 };
 
 #endif // EXPECTATIONVALUES_H

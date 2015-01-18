@@ -6,8 +6,8 @@ class HO1 : public Orbital
 {
 public:
     HO1()  : Orbital() {}
-    double eval(double x,double a);
-    double laplacian(double x,double a); //
+    double eval(arma::vec x,double a);
+    double laplacian(arma::vec x,double a); //
 };
 
 #endif // HO1_H

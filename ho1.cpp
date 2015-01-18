@@ -4,15 +4,15 @@
 
 using namespace std;
 
-double HO1::eval(double x,double a)
+double HO1::eval(arma::vec x,double a)
 {
-    return x*exp(-x*x/(2*a*a));
+    return arma::norm(x)*exp(-arma::dot(x,x)/(2*a*a));
 }
 
-double HO1::laplacian(double x, double a)
+double HO1::laplacian(arma::vec x, double a)
 {
 
 //    double h = 0.0001;
 //    cout << (this->eval(x+h,a) + this->eval(x-h,a) -2*this->eval(x,a))/(h*h)- (x*x/(a*a*a*a)- 3.0/(a*a))*x*exp(-x*x/(2*a*a)) << endl;
-    return (x*x/(a*a*a*a)- 3.0/(a*a))*x*exp(-x*x/(2*a*a));
+    return (arma::dot(x,x)/(a*a*a*a)- 3.0/(a*a))*arma::norm(x)*exp(-arma::dot(x,x)/(2*a*a));
 }

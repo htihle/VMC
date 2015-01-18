@@ -15,14 +15,14 @@ public:
     int NumberOfParticles,NumberOfDimensions;
     Orbital* myorbital[5];
     arma::mat SlaterInverse;
-    double laplacianLog(arma::vec x);
+    double laplacianLog(arma::mat x);
     bool newStep(arma::mat &xnew, arma::mat x, int &WhichParticle);
-    double evaluateSlater(arma::vec x);
-    arma::mat calculateSlater(arma::vec x);
-    double slaterNumericalLaplacianLog(arma::vec x);
-    double slaterAnalyticalLaplacianLog(arma::vec x);
-    void getSlaterInverse(arma::vec x);
-    void updateSlaterInverse(arma::vec x, int i);
+    double evaluateSlater(arma::mat x);
+    arma::mat calculateSlater(arma::mat x);
+    double slaterNumericalLaplacianLog(arma::mat x);
+    double slaterAnalyticalLaplacianLog(arma::mat x);
+    void getSlaterInverse(arma::mat x);
+    void updateSlaterInverse(arma::mat x, int i);
     void setUpForMetropolis(arma::mat &x);
 };
 

@@ -4,17 +4,17 @@
 
 using namespace std;
 
-double HO0::eval(double x,double a)
+double HO0::eval(arma::vec x,double a)
 {
-    return exp(-x*x/(2*a*a));
+    return exp(-arma::dot(x,x)/(2*a*a));
 }
 
-double HO0::gradient(double x, double a)
+double HO0::gradient(arma::vec x, double a)
 {
-    return -x/(a*a)*exp(-x*x/(2*a*a));
+    return -arma::norm(x)/(a*a)*exp(-arma::dot(x,x)/(2*a*a));
 }
 
-double HO0::laplacian(double x, double a)
+double HO0::laplacian(arma::vec x, double a)
 {
-    return (x*x/(a*a*a*a)- 1/(a*a))*exp(-x*x/(2*a*a));
+    return (arma::dot(x,x)/(a*a*a*a)- 1/(a*a))*exp(-arma::dot(x,x)/(2*a*a));
 }

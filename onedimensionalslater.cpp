@@ -15,7 +15,7 @@ OneDimensionalSlater::OneDimensionalSlater(double a, int N) : WaveFunction(a,N,1
 
 
 
-double OneDimensionalSlater::laplacianLog(vec x) {
+double OneDimensionalSlater::laplacianLog(mat x) {
     double analytic = this->slaterAnalyticalLaplacianLog(x);
 //    double num = this->slaterNumericalLaplacianLog(x);
     return analytic;
@@ -30,7 +30,7 @@ bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle) {
 
     Rsd = 0;
     for(int j = 0;j<NumberOfParticles;j++) {
-        Rsd += myorbital[j]->eval(xnew(WhichParticle),a)*SlaterInverse(j,WhichParticle);
+        Rsd += myorbital[j]->eval(xnew.row(WhichParticle),a)*SlaterInverse(j,WhichParticle);
     }
     bool accept = false;
     if(Rsd*Rsd>num2(0)){
@@ -40,24 +40,24 @@ bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle) {
     return accept;
 }
 
-double OneDimensionalSlater::evaluateSlater(vec x) {
+double OneDimensionalSlater::evaluateSlater(arma::mat x) {
     return det(calculateSlater(x));
 }
 
-mat OneDimensionalSlater::calculateSlater(vec x) {
+mat OneDimensionalSlater::calculateSlater(mat x) {
     mat Slater = zeros<mat>(NumberOfParticles,NumberOfParticles);
 
     for(int i = 0;i<NumberOfParticles;i++) {
         for(int j = 0; j<NumberOfParticles;j++) {
-            Slater(i,j) = myorbital[j]->eval(x(i),a);
+            Slater(i,j) = myorbital[j]->eval(x.row(i),a);
         }
     }
     return Slater;
 }
 
-double OneDimensionalSlater::slaterNumericalLaplacianLog(vec x) {
+double OneDimensionalSlater::slaterNumericalLaplacianLog(mat x) {
     double h= 0.0001;
-    vec mod = zeros<vec>(NumberOfParticles);
+    mat mod = zeros<mat>(NumberOfParticles);
     double sum = 0;
     for(int i = 0;i<NumberOfParticles;i++) {
         mod(i)+=h;
@@ -70,31 +70,31 @@ double OneDimensionalSlater::slaterNumericalLaplacianLog(vec x) {
     return sum;
 }
 
-void OneDimensionalSlater::getSlaterInverse(arma::vec x) {
+void OneDimensionalSlater::getSlaterInverse(arma::mat x) {
     SlaterInverse = this->calculateSlater(x);
     SlaterInverse = inv(SlaterInverse);
 }
 
-double OneDimensionalSlater::slaterAnalyticalLaplacianLog(arma::vec x) {
+double OneDimensionalSlater::slaterAnalyticalLaplacianLog(arma::mat x) {
     // we should keep the laplacian wrt all the different particles separately and update only
     // the ones we have moved (or is that correct?)
     double sum = 0;
     for(int i =0; i<NumberOfParticles;i++) {
         for(int j = 0;j<NumberOfParticles;j++) {
-            sum += myorbital[j]->laplacian(x(i),a)*SlaterInverse(j,i); //for some reason j and i are switched
+            sum += myorbital[j]->laplacian(x.row(i),a)*SlaterInverse(j,i); //for some reason j and i are switched
         }
     }
     return sum;
 }
 
-void OneDimensionalSlater::updateSlaterInverse(arma::vec x, int i) {
+void OneDimensionalSlater::updateSlaterInverse(arma::mat x, int i) {
     mat oldSlater = SlaterInverse;
     for (int k = 0;k<NumberOfParticles; k++) {
         for (int j = 0; j<NumberOfParticles; j++) {
             if(j != i) {
                 double sum = 0;
                 for( int l = 0; l< NumberOfParticles; l++) {
-                    sum += oldSlater(l,j) * myorbital[l]->eval(x(i), a);
+                    sum += oldSlater(l,j) * myorbital[l]->eval(x.row(i), a);
                 }
                 SlaterInverse(k,j) = oldSlater(k,j) - oldSlater(k,i) * sum / Rsd;
             }

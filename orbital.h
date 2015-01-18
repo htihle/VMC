@@ -1,13 +1,14 @@
 #ifndef ORBITAL_H
 #define ORBITAL_H
 
-class Orbital
-{
+#include <armadillo>
+
+class Orbital {
 public:
     Orbital();
-    virtual double eval(double x,double a);
-    virtual double gradient(double x, double a);
-    virtual double laplacian(double x, double a);
+    virtual double eval(arma::vec x,double a) = 0;
+    virtual double gradient(arma::vec x, double a);
+    virtual double laplacian(arma::vec x, double a);
 };
 
 #endif // ORBITAL_H
