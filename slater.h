@@ -1,6 +1,6 @@
 #pragma once
-#include <Wavefunctions/WaveFunction.h>
-#include <Wavefunctions/Orbital.h>
+#include <wavefunction.h>
+#include <orbital.h>
 #include <armadillo>
 class Slater : public WaveFunction
 {

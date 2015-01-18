@@ -40,7 +40,7 @@ bool OneDimensionalSlater::newStep(mat &xnew, mat x,int &WhichParticle)
     bool accept = false;
     if(Rsd*Rsd>num2(0)){
         accept = true;
-        acceptanceCounter+=1;
+        this->acceptanceCounter+=1;
     }
     return accept;
 }

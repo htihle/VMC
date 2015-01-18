@@ -1,4 +1,4 @@
-#include "Wavefunctions/Slater.h"
+#include "slater.h"
 #include <armadillo>
 using namespace arma;
 Slater::Slater(double a, int N) : WaveFunction(a,N,1)

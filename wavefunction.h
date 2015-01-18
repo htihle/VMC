@@ -10,7 +10,8 @@ class WaveFunction
 {
 public:
     double a,Rsd;
-    int NumberOfParticles,NumberOfDimensions,acceptanceCounter;
+    int NumberOfParticles,NumberOfDimensions;
+    double acceptanceCounter;
     WaveFunction(double a, int N, int Ndim);
     WaveFunction() {}
     virtual double laplacianLog(arma::vec x);

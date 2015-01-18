@@ -12,7 +12,7 @@ class OneDimensionalSlater : public WaveFunction
 public:
     OneDimensionalSlater(double a, int N);  // : WaveFunction(a,N) {}
     double a,Rsd;
-    int NumberOfParticles,NumberOfDimensions,acceptanceCounter;
+    int NumberOfParticles,NumberOfDimensions;
     Orbital* myorbital[5];
     arma::mat SlaterInverse;
     double laplacianLog(arma::vec x);

@@ -6,6 +6,7 @@ using namespace arma;
 WaveFunction::WaveFunction(double a, int N, int Ndim)
 {
     this->a = a;
+    this->acceptanceCounter = 0;
     NumberOfParticles = N;
     NumberOfDimensions = Ndim;
 }

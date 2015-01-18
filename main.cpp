@@ -21,6 +21,7 @@ int main()
     Metropolis mysys(&expect, &wave);
     vec a = linspace(0.5,1.5,N);
     vec en;
+
     for(int i= 0; i<N ; i++) {
         wave.a = a(i);
         mysys.Run(n);
