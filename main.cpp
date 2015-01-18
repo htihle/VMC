@@ -14,7 +14,7 @@ using namespace arma;
 
 int main()
 {
-    int N = 100;    //# of different a's
+    int N = 10;    //# of different a's
     int n = 2e5;  //# of iterations in metropolis
     //WaveFunction wave(0.5,3);
 //    OneDimensionalSlater wave(0.5,3);
@@ -27,7 +27,7 @@ int main()
     vec en;
 
     for(int i= 0; i<N ; i++) {
-        wave.a = a(i);
+        wave.a = 1;//a(i);
 
         mysys.Run(n);
 

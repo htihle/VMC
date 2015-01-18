@@ -19,6 +19,7 @@ void Metropolis::Run(int n) {
     wave->setUpForMetropolis(x);
 
     for(int i =0;i<n; i++) {
+
         if(wave->newStep(xnew,x, WhichParticle)){
             expect->Sample(xnew,x,WhichParticle);
         } else {
