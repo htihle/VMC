@@ -43,11 +43,11 @@ double ExpectationValues::calculateEnergy(mat x) {
     double sum = 0;
     for(int i = 0;i<wave->NumberOfParticles*2;i++)
     {
-        sum -= 1 / (norm(x.col(i)));
+//        sum -= 1 / (norm(x.col(i)));
 
         for(int j= 0;j<wave->NumberOfDimensions;j++)
         {
-//            sum += 1.0/2*x(j,i)*x(j,i);
+            sum += 1.0/2*x(j,i)*x(j,i);
         }
     }
     return -wave->laplacianLog(x)/2.0 +sum;

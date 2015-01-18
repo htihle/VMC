@@ -18,7 +18,7 @@ int main()
     int n = 2e5;  //# of iterations in metropolis
     //WaveFunction wave(0.5,3);
 //    OneDimensionalSlater wave(0.5,3);
-    Slater wave(1,2,3); // (a, numParticls, numDims)
+    Slater wave(1,2,1); // (a, numParticls, numDims)
 
     ExpectationValues expect(4,&wave);
     Metropolis mysys(&expect, &wave);
