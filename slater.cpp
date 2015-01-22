@@ -14,11 +14,14 @@ Slater::Slater(double a, int N,int Ndim) : WaveFunction(a,N,Ndim) {
     this->a = a;
     this->whichSlater = 0;
     this->splitSlater = 2;
-    myorbital[0] = new HO0();
+//    myorbital[0] = new HO0();
 //    myorbital[1] = new HO1();
 //    myorbital[2] = new HO2();
-//    myorbital[0] = new H1s();
-
+    myorbital[0] = new H1s();
+    myorbital[1] = new H2s();
+    myorbital[2] = new H2p(0);
+    myorbital[3] = new H2p(1);
+    myorbital[4] = new H2p(2);
     NumberOfParticles = N/2;
     NumberOfDimensions = Ndim;
 }
@@ -37,7 +40,7 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle)
     vec num2 = randu<vec>(2);
     whichParticle = round(num2(1)*(this->NumberOfParticles*2-1));
     whichSlater = whichParticle / NumberOfParticles;
-    xnew.col(whichParticle) = x.col(whichParticle) + 0.5/NumberOfParticles*a*num; //newstep(x)
+    xnew.col(whichParticle) = x.col(whichParticle) + 0.5/NumberOfParticles/NumberOfDimensions*a*num; //newstep(x)
     Rsd = 0;
 
     for(int j = 0;j<NumberOfParticles;j++)
@@ -110,56 +113,24 @@ double Slater::slaterAnalyticalLaplacianLog(mat x) {
 
 void Slater::updateSlaterInverse(mat x, int i)
 {
-    slaterInverse[whichSlater]= calculateSlater(x,whichSlater).i();
-    //mat oldSlater = slaterInverse[whichSlater];
+//    slaterInverse[whichSlater]= calculateSlater(x,whichSlater).i();
+    i = i -whichSlater*NumberOfParticles;
 
-    /*mat old = zeros<mat>(4,4);
-    mat NEW = zeros<mat>(4,4);
-    mat oldSlater = zeros<mat>(4,4);
-    mat newSlater = zeros<mat>(4,4);
-
-    mat addd = zeros<mat>(4,4);
-
-    addd.(2) += 1;
-
-
-    for (int k = 0;k<4; k++) {
-        for (int j = 0; j<4; j++) {
-            old(k,j) = 1+k*24.12+j*5+j*j*7.1 - 5.245214;
-        }
-    }
-
-    NEW = old+addd;
-
-
-    oldSlater = old.i();
-    newSlater = NEW.i();
-
-
-    cout << "old:" << old << endl;
-    cout << "new:" << NEW << endl;
-    cout << "old.i():" << oldSlater << endl;
-    cout << "mat.i():" << newSlater << endl;
-
-*/
-
-
-/*
-
+    mat oldSlater = slaterInverse[whichSlater];
     for (int k = 0;k<NumberOfParticles; k++) {
         for (int j = 0; j<NumberOfParticles; j++) {
             if(j != i) {
                 double sum = 0;
                 for( int l = 0; l< NumberOfParticles; l++) {
-                    sum += oldSlater(l,j) * myorbital[l]->eval(x.col(i), a);
+                    sum += oldSlater(l,j) * myorbital[l]->eval(x.col(i+whichSlater*NumberOfParticles), a);
                 }
-                slaterInverse[whichSlater](k,j) = oldSlater(k,j) - oldSlater(k,i-whichSlater*NumberOfParticles) * sum / Rsd;
+                slaterInverse[whichSlater](k,j) = oldSlater(k,j) - oldSlater(k,i) * sum / Rsd;
             }
             else {
-                slaterInverse[whichSlater](k,j) = oldSlater(k,i-whichSlater*NumberOfParticles) / Rsd;
+                slaterInverse[whichSlater](k,j) = oldSlater(k,i) / Rsd;
             }
         }
-    }*/
+    }
 }
 
 void Slater::setUpForMetropolis(mat &x)

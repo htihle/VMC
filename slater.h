@@ -5,6 +5,8 @@
 #include <ho1.h>
 #include <ho2.h>
 #include <h1s.h>
+#include <h2s.h>
+#include <h2p.h>
 #include <armadillo>
 
 

@@ -13,7 +13,11 @@ SOURCES += main.cpp \
     ho2.cpp \
     onedimensionalslater.cpp \
     slater.cpp \
-    h1s.cpp
+    h1s.cpp \
+    h2s.cpp \
+    hamiltonian.cpp \
+    atom.cpp \
+    h2p.cpp
 
 HEADERS += \
     metropolis.h \
@@ -25,6 +29,10 @@ HEADERS += \
     ho2.h \
     onedimensionalslater.h \
     slater.h \
-    h1s.h
+    h1s.h \
+    h2s.h \
+    hamiltonian.h \
+    atom.h \
+    h2p.h
 
     LIBS+= -larmadillo -lblas -llapack

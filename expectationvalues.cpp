@@ -3,11 +3,12 @@
 
 using namespace arma;
 
-ExpectationValues::ExpectationValues(int numberofev, WaveFunction *wave)
+ExpectationValues::ExpectationValues(int numberofev, WaveFunction *wave, Hamiltonian *ham)
 {
     numberofEVs = numberofev;
     ev = zeros<vec>(numberofEVs);
     this->wave =wave;
+    this->ham  = ham;
     LocalEnergy = 0;
 }
 ExpectationValues::ExpectationValues()
@@ -40,15 +41,21 @@ void ExpectationValues::ReSample(mat &xnew, mat &x)
 }
 
 double ExpectationValues::calculateEnergy(mat x) {
-    double sum = 0;
-    for(int i = 0;i<wave->NumberOfParticles*2;i++)
-    {
-//        sum -= 1 / (norm(x.col(i)));
+//    double sum = 0;
+//    double Z = wave->NumberOfParticles*2;
+//    for(int i = 0;i<wave->NumberOfParticles*2;i++)
+//    {
 
-        for(int j= 0;j<wave->NumberOfDimensions;j++)
-        {
-            sum += 1.0/2*x(j,i)*x(j,i);
-        }
-    }
-    return -wave->laplacianLog(x)/2.0 +sum;
+//        sum -= Z/ (norm(x.col(i)));
+//        for(int j= i+1;j<wave->NumberOfParticles*2;j++)
+//        {
+//            sum += 1/ (norm(x.col(i)-x.col(j)));
+//        }
+
+//        for(int j= 0;j<wave->NumberOfDimensions;j++)
+//        {
+//            sum += 1.0/2*x(j,i)*x(j,i);
+//        }
+//    }
+    return -wave->laplacianLog(x)/2.0 + ham->calculatePotential(x);
 }

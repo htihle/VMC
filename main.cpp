@@ -5,6 +5,7 @@
 #include <orbital.h>
 #include <onedimensionalslater.h>
 #include <slater.h>
+#include <atom.h>
 
 using namespace std;
 using namespace arma;
@@ -14,20 +15,19 @@ using namespace arma;
 
 int main()
 {
-    int N = 10;    //# of different a's
+    int N = 15;    //# of different a's
     int n = 2e5;  //# of iterations in metropolis
-    //WaveFunction wave(0.5,3);
-//    OneDimensionalSlater wave(0.5,3);
-    Slater wave(1,2,1); // (a, numParticls, numDims)
-
-    ExpectationValues expect(4,&wave);
+    int numberofpart = 2;
+    Slater wave(1,numberofpart,3); // (a, numParticls, numDims)
+    Atom ham(numberofpart); // Z
+    ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(0.5,1.5,N);
+    vec a = linspace(numberofpart-1,numberofpart,N);
     vec en;
 
     for(int i= 0; i<N ; i++) {
-        wave.a = 1;//a(i);
+        wave.a = a(i);
 
         mysys.Run(n);
 
