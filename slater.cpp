@@ -10,7 +10,7 @@ using arma::randu;
 using arma::zeros;
 
 
-Slater::Slater(double a, int N,int Ndim) : WaveFunction(a,N,Ndim) {
+arma::mat Slater::Slater(double a, int N,int Ndim) : WaveFunction(a,N,Ndim) {
     this->a = a;
     this->whichSlater = 0;
     this->splitSlater = 2;

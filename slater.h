@@ -20,6 +20,7 @@ public:
     double    a,Rsd;
     Orbital*  myorbital[5];
     arma::mat slaterInverse[2];
+    arma::mat R;
 
     Slater(double a, int N,int Ndim);
 
