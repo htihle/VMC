@@ -1,0 +1,12 @@
+#ifndef H2P1_H
+#define H2P1_H
+#include <orbital.h>
+#include <armadillo>
+class H2p1
+{
+public:
+    H2p1()  : Orbital() {}
+    double eval(arma::vec x, double a);
+};
+
+#endif // H2P1_H
