@@ -5,6 +5,6 @@ H2p::H2p(int state)
     this->state = state;
 }
 
-double H2p::eval(arma::vec x, double a) {
-    return x(state)*exp(-a * arma::norm(x)/2);
+double H2p::eval(arma::vec x, double a,double r) {
+    return x(state)*exp(-a * r/2);
 }

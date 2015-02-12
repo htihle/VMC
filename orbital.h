@@ -6,9 +6,9 @@
 class Orbital {
 public:
     Orbital();
-    virtual double eval(arma::vec x,double a) = 0;
-    virtual double gradient(arma::vec x, double a);
-    virtual double laplacian(arma::vec x, double a);
+    virtual double eval(arma::vec x,double a, double r) = 0;
+    virtual arma::vec gradient(arma::vec x, double a, double r);
+    virtual double laplacian(arma::vec x, double a, double r);
 };
 
 #endif // ORBITAL_H

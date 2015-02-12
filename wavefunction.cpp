@@ -3,9 +3,9 @@
 
 using namespace arma;
 
-WaveFunction::WaveFunction(double a, int N, int Ndim)
+WaveFunction::WaveFunction(vec a, int N, int Ndim)
 {
-    this->a = a;
+    this->a = a(0);
     this->acceptanceCounter = 0;
     NumberOfParticles = N;
     NumberOfDimensions = Ndim;

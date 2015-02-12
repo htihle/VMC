@@ -4,9 +4,10 @@
 
 using namespace std;
 
-double HO2::eval(arma::vec x,double a)
+double HO2::eval(arma::vec x,double a,double r)
 {
-    return (2*arma::dot(x,x) -1)*exp(-arma::dot(x,x)/(2*a*a));
+    double rr = r*r;
+    return (2*rr -1)*exp(-rr/(2*a*a));
 }
 
 //double HO2::laplacian(arma::vec x, double a)

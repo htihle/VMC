@@ -22,6 +22,7 @@ void ExpectationValues::Sample(mat &xnew,mat &x, int WhichParticle)
     wave->updateSlaterInverse(x,WhichParticle);
     vec f=zeros<vec>(numberofEVs);
     LocalEnergy = calculateEnergy(x);
+    //cout << LocalEnergy << endl;
     f(0) = LocalEnergy;
     f(1) = LocalEnergy*LocalEnergy;
     f(2) = arma::norm(x.col(0));

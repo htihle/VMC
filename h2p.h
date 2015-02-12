@@ -6,7 +6,7 @@ class H2p : public Orbital
 {
 public:
     H2p(int state);
-    double eval(arma::vec x, double a);
+    double eval(arma::vec x, double a, double r);
     int state;
 };
 

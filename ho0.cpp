@@ -4,9 +4,9 @@
 
 using namespace std;
 
-double HO0::eval(arma::vec x,double a)
+double HO0::eval(arma::vec x, double a, double r)
 {
-    return exp(-arma::dot(x,x)/(2*a*a));
+    return exp(-r*r/(2*a*a));
 }
 
 //double HO0::gradient(arma::vec x, double a)

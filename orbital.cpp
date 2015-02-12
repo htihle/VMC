@@ -7,17 +7,21 @@ Orbital::Orbital() {
 }
 
 
-double Orbital::gradient(arma::vec x, double a) {
+vec Orbital::gradient(arma::vec x, double a, double r) {
 
     int numberOfDimensions = x.size();
-
+    double h = 0.001;
+    arma::vec H = zeros<vec>(numberOfDimensions);
+    vec grad = zeros<vec>(numberOfDimensions);
     for (int i = 0; i < numberOfDimensions; i ++) {
-
+        H(i) = h;
+        grad(i)= (this->eval(x+H,a,norm(x+H)) - this->eval(x-H,a,norm(x-H)))/(2*h);
+        H(i) = 0;
     }
-    return 0;
+    return grad;
 }
 
-double Orbital::laplacian(arma::vec x,double a) {
+double Orbital::laplacian(arma::vec x,double a, double r) {
     int numberOfDimensions = x.size();
     double h = 0.001;
     arma::vec H = zeros<vec>(numberOfDimensions);
@@ -25,7 +29,7 @@ double Orbital::laplacian(arma::vec x,double a) {
 
     for (int i = 0; i < numberOfDimensions; i ++) {
         H(i) = h;
-        sum += this->eval(x+H,a) + this->eval(x-H,a) - 2*this->eval(x,a);
+        sum += this->eval(x+H,a,norm(x+H)) + this->eval(x-H,a,norm(x-H)) - 2*this->eval(x,a,r);
         H(i) = 0;
     }
     return sum / (h*h);

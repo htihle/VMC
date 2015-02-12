@@ -16,14 +16,17 @@ using namespace arma;
 int main()
 {
     int N = 15;    //# of different a's
-    int n = 2e5;  //# of iterations in metropolis
+    int n = 1e6;  //# of iterations in metropolis
     int numberofpart = 2;
-    Slater wave(1,numberofpart,3); // (a, numParticls, numDims)
+    vec avec = zeros<vec>(2);
+    avec(0) = 1;    //alpha
+    avec(1) = 0.5;  //beta
+    Slater wave(avec,numberofpart,3); // (a, numParticls, numDims)
     Atom ham(numberofpart); // Z
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(numberofpart-1,numberofpart,N);
+    vec a = linspace(numberofpart-0.3,numberofpart,N);
     vec en;
 
     for(int i= 0; i<N ; i++) {

@@ -17,20 +17,32 @@ public:
 //    int       NumberOfDimensions;
     int       whichSlater;
     int       splitSlater;
-    double    a,Rsd;
+    int       sizeOfSlater;
+    double    a,b,Rsd,Rc,stepSize,D; // a and b are Alpha and Beta
     Orbital*  myorbital[5];
     arma::mat slaterInverse[2];
-    arma::mat R;
+    arma::mat R,Rold,spins,correlationsMat;
+    arma::mat gradient, gradientOld;
+    arma::mat quantumForceNew, quantumForceOld;
 
-    Slater(double a, int N,int Ndim);
+
+    Slater(arma::vec a, int N,int Ndim);
 
     bool      newStep                     (arma::mat &xnew, arma::mat x, int &whichParticle);
     double    laplacianLog                (arma::mat x);
     double    evaluateSlater              (arma::mat x);
     double    slaterNumericalLaplacianLog (arma::mat x);
     double    slaterAnalyticalLaplacianLog(arma::mat x);
+    double    computeGreensFunction       (arma::mat x, arma::mat xOld);
     void      updateSlaterInverse         (arma::mat x, int i);
     void      setUpForMetropolis          (arma::mat &x);
     void      getSlaterInverse            (arma::mat x);
+    void      makeR                       (arma::mat x);
+    void      updateR                     (arma::mat x, int i);
+    void      fillSpinMatrix();
+    void      fillCorrelationsMatrix();
+    void      updateCorrelationsMatrix    (int i);
+    void      updateSlaterGradient        (arma::mat x, int i);
+    void      computeSlaterGradient       (arma::mat x);
     arma::mat calculateSlater             (arma::mat x, int upordown);
 };
