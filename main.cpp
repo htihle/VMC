@@ -16,8 +16,8 @@ using namespace arma;
 int main()
 {
     int N = 15;    //# of different a's
-    int n = 1e6;  //# of iterations in metropolis
-    int numberofpart = 2;
+    int n = 1e5;  //# of iterations in metropolis
+    int numberofpart = 10;
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha
     avec(1) = 0.5;  //beta
@@ -26,7 +26,7 @@ int main()
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(numberofpart-0.3,numberofpart,N);
+    vec a = linspace(numberofpart-1,numberofpart+1,N);
     vec en;
 
     for(int i= 0; i<N ; i++) {

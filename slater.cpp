@@ -29,7 +29,19 @@ Slater::Slater(vec a, int N, int Ndim) : WaveFunction(a,N,Ndim) {
     spins = R;
     correlationsMat = R;
     D = 0.5;
-    stepSize = 0.0005;
+    switch(NumberOfParticles*2) {
+    case(2) :
+        stepSize = 0.0005;
+        break;
+    case(4) :
+        stepSize = 0.02;
+        break;
+    case(10) :
+        stepSize = 0.05;
+        break;
+    default :
+        break;
+    }
 }
 
 double Slater::laplacianLog(mat x)
