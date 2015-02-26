@@ -11,6 +11,7 @@ using arma::zeros;
 
 
 Slater::Slater(vec a, int N, int Ndim) : WaveFunction(a,N,Ndim) {
+    interacting = true;
     this->a = a(0);
     this->b = a(1);
     this->whichSlater = 0;
@@ -27,7 +28,8 @@ Slater::Slater(vec a, int N, int Ndim) : WaveFunction(a,N,Ndim) {
     NumberOfDimensions = Ndim;
     R = zeros<mat>(NumberOfParticles*2,NumberOfParticles*2);
     spins = R;
-    correlationsMat = R;
+    correlationsMatNew = R;
+    correlationsMatOld = correlationsMatNew;
     D = 0.5;
     switch(NumberOfParticles*2) {
     case(2) :
@@ -51,8 +53,10 @@ double Slater::laplacianLog(mat x)
     //    cout << lap1 -lap<< endl;
     return lap1;
 }
-bool Slater::newStep(mat &xnew, mat x,int &whichParticle)
-{
+
+bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
+
+    double Rcoeff;
     xnew = x;
     vec num  = randn<vec>(NumberOfDimensions);
     vec num2 = randu<vec>(2);
@@ -60,26 +64,40 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle)
     whichSlater = whichParticle / NumberOfParticles;
     //xnew.col(whichParticle) = x.col(whichParticle) + this->stepSize/NumberOfParticles/NumberOfDimensions*a*num; //newstep(x)
     xnew.col(whichParticle) = x.col(whichParticle)
-                                + num*sqrt(stepSize)
-                                + this->quantumForceOld.col(whichParticle) * stepSize * D; //newstep(x)
+            + num*sqrt(stepSize)
+            + this->quantumForceOld.col(whichParticle) * stepSize * D; //newstep(x)
     Rsd = 0;
     this->updateR(xnew,whichParticle);
-    for(int j = 0;j<NumberOfParticles;j++)
+    for(int j = 0;j<NumberOfParticles;j++) // make a function get Rsd ??
     {
         Rsd += myorbital[j]->eval(xnew.col(whichParticle),a, R(whichParticle, whichParticle))*
                 slaterInverse[whichSlater](j,whichParticle-whichSlater*NumberOfParticles);
     }
     bool accept = false;
-    this->Rc = 1;
-    double coeff = Rsd*Rsd*Rc*Rc * this->computeGreensFunction(xnew, x);
+    if(interacting){
+        this->updateCorrelationsMatrix(whichParticle);
+        this->computeRc(whichParticle);
+        Rcoeff = Rsd*Rc;
+    }
+    else {
+        Rcoeff = Rsd;
+    }
+    double coeff = Rcoeff*Rcoeff * this->computeGreensFunction(xnew, x);
     if(coeff > num2(0)){
         accept = true;
         Rold = R;
+        correlationsMatOld = correlationsMatNew;
+        gradientOld = gradient;
+        JgradientOld = Jgradient;
+        quantumForceOld = quantumForceNew;
         acceptanceCounter+=1;
     }
     else
     {
         R = Rold;
+        correlationsMatNew = correlationsMatOld;
+        gradient=gradientOld;
+        Jgradient = JgradientOld;
     }
     return accept;
 }
@@ -99,8 +117,7 @@ mat Slater::calculateSlater(mat x,int upordown) {
     return Slater;
 }
 
-double Slater::slaterNumericalLaplacianLog(mat x)  // does not work with R !!!!!!!!!!!!
-{
+double Slater::slaterNumericalLaplacianLog(mat x) { // does not work with R !!!!!!!!!!!!
     double h= 0.0001;
     mat mod = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
     double sum = 0;
@@ -156,12 +173,12 @@ double Slater::slaterAnalyticalLaplacianLog(mat x) {
     for (int k = 0; k < splitSlater; k++) {
         for(int i =0; i<NumberOfParticles;i++) {
             for(int j = 0;j<NumberOfParticles;j++) {
-//                double p = norm(x.col(i+k*NumberOfParticles)) - R(i+k*NumberOfParticles,i+k*NumberOfParticles);
-//                if (abs(p) > 0.00001) {
-//                    cout << x << R << endl;
-//                    cout << p << endl;
-//                    cout << i+k*NumberOfParticles << endl;
-//                }
+                //                double p = norm(x.col(i+k*NumberOfParticles)) - R(i+k*NumberOfParticles,i+k*NumberOfParticles);
+                //                if (abs(p) > 0.00001) {
+                //                    cout << x << R << endl;
+                //                    cout << p << endl;
+                //                    cout << i+k*NumberOfParticles << endl;
+                //                }
 
                 sum += myorbital[j]->laplacian(x.col(i+k*NumberOfParticles),a, R(i+k*NumberOfParticles,i+k*NumberOfParticles))
                         *slaterInverse[k](j,i); //for some reason j and i are switched
@@ -197,7 +214,7 @@ void Slater::updateSlaterInverse(mat x, int i)
 void Slater::fillCorrelationsMatrix() {
     for (int i = 0; i < NumberOfParticles*2; i++) {
         for (int j = i+1; j < NumberOfParticles*2; j++) {
-            correlationsMat(i,j) = spins(i,j) * R(i,j) / (1 + b * R(i,j));
+            correlationsMatNew(i,j) = spins(i,j) * R(i,j) / (1 + b * R(i,j));
         }
     }
 }
@@ -206,12 +223,74 @@ void Slater::fillCorrelationsMatrix() {
 void Slater::updateCorrelationsMatrix(int particle) {
     int k = particle;
     for (int i = 0; i < k; i++) {
-        correlationsMat(i,k) = spins(i,k) * R(i,k) / (1 + b * R(i,k));
+        correlationsMatNew(i,k) = spins(i,k) * R(i,k) / (1 + b * R(i,k));
     }
     for (int i = (k+1); i < NumberOfParticles*2; i++) {
-        correlationsMat(k,i) = spins(k,i) * R(k,i) / (1 + b * R(k,i));
+        correlationsMatNew(k,i) = spins(k,i) * R(k,i) / (1 + b * R(k,i));
     }
 }
+
+/* Computes the ratio of the new correlations to the old, Rc. */
+void Slater::computeRc(int i) {
+    this->Rc = 0;
+    for (int j = 0; j < i; j++) {
+        Rc += correlationsMatNew(j,i) - correlationsMatOld(j,i);
+    }
+    for (int j = i+1;j<NumberOfParticles*2; j++) {
+        Rc += correlationsMatNew(i,j) - correlationsMatOld(i,j);
+    }
+}
+
+
+void Slater::computeJastrowGradient(int particle) {
+     for (int i = 0; i<particle; i++) {
+        double factor = 1+b*R(i,particle);
+        jastrowGradient(i,particle) = spins(i,particle)/(factor*factor);
+    }
+    for (int i = particle+1; i < NumberOfParticles*2; i++) {
+        double factor = 1+b*R(particle,i);
+        jastrowGradient(particle,i) = spins(particle,i)/(factor*factor);
+    }
+}
+
+void Slater::computeJastrowLaplacian(int particle) {
+    for (int i = 0; i<particle; i++) {
+        double factor = 1 + b*R(i,particle);
+        jastrowLaplacian(i,particle) = -2*spins(i,particle)*b/(factor*factor*factor);
+    }
+    for (int i = particle+1; i < NumberOfParticles*2; i++) {
+        double factor = 1 + b*R(particle,i);
+        jastrowLaplacian(particle,i) = -2*spins(particle,i)*b/(factor*factor*factor);
+    }
+}
+
+double Slater::computeJastrowEnergy(mat& jastrowGradient) { //masse wastage!!
+    double sum = 0.0;
+    for (int k = 0; k<NumberOfParticles; k++) {
+        for (int i = 0; i<k; i++) {
+            sum +=(NumberOfDimensions -1)/R(i,k)*jastrowGradient(i,k) +jastrowLaplacian(i,k);
+        }
+        for (int i = k+1; i < NumberOfParticles; i++) {  // *2???????????????????????????????????????????????????????????????
+            sum +=(NumberOfDimensions -1)/R(k,i)*jastrowGradient(k,i) +jastrowLaplacian(k,i);
+        }
+    }
+    return sum;
+}
+
+void Slater::setUpJastrow() {
+
+    Jgradient = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
+    JgradientOld = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
+    jastrowLaplacian = zeros<mat>(NumberOfParticles*2, NumberOfParticles*2);
+    jastrowGradient = zeros<mat>(NumberOfParticles*2, NumberOfParticles*2);
+
+    for (int i = 0; i < NumberOfParticles*2; i++) {
+        this->computeJastrowGradient(i); // (R, jastrowGradient, i)
+        this->computeJastrowLaplacian(i); // (R, jastrowLaplacian,i)
+    }
+}
+
+
 
 //computes the gradient of the Slater part of the wavefunction
 void Slater::updateSlaterGradient(mat x, int i) {
@@ -220,10 +299,26 @@ void Slater::updateSlaterGradient(mat x, int i) {
     for (int j = 0; j < (NumberOfParticles); j++) {
         sum += slaterInverse[whichSlater](j,k) * myorbital[j]->gradient(x.col(i), a, R(i,i));
     }
-
     gradient.col(i) = 1.0/this->Rsd * sum;
 }
 
+void Slater::makeJgradient(mat x) {
+    for (int k = 0; k < NumberOfParticles*2; k++) {
+        for (int j =0 ; j < NumberOfDimensions; j++) {//we call the function jastrowgradient far too many times here, this should be done more effectively!!!!!
+
+            double sum = 0;
+
+            for (int i = 0; i < k; i++) {
+                sum += (x(k,j)-x(i,j)) / R(i,k) * jastrowGradient(i,k);
+            }
+            for (int i = k+1; i < NumberOfParticles*2; i++) {
+                sum -= (x(i,j)-x(k,j)) / R(k,i) * jastrowGradient(k,i);
+            }
+
+            Jgradient(k,j) = sum;
+        }
+    }
+}
 
 void Slater::computeSlaterGradient(arma::mat x) {
     for (int i = 0; i < NumberOfParticles*2; i++) {
@@ -236,8 +331,8 @@ void Slater::computeSlaterGradient(arma::mat x) {
 // Maybe make this more efficient (some day...)
 double Slater::computeGreensFunction(arma::mat x, arma::mat xOld) {
 
-    this->quantumForceOld = this->gradientOld;
-    this->quantumForceNew = this->gradient;
+    this->quantumForceOld = 2 * (this->gradientOld + this->JgradientOld);
+    this->quantumForceNew = 2 * (this->gradient    + this->Jgradient);
 
     double greensFunction = 0;
     for (int j = 0; j < NumberOfParticles*2; j++) {
@@ -245,7 +340,7 @@ double Slater::computeGreensFunction(arma::mat x, arma::mat xOld) {
             greensFunction += 0.5* (quantumForceOld(i,j) +
                                     quantumForceNew(i,j)) *
                     (D * this->stepSize * 0.5* (quantumForceOld(i,j) -
-                                    quantumForceNew(i,j)) -
+                                                quantumForceNew(i,j)) -
                      x(i,j) + xOld(i,j));
         }
     }
@@ -285,12 +380,16 @@ void Slater::setUpForMetropolis(mat &x) {
     this->fillSpinMatrix();
     this->fillCorrelationsMatrix();
     Rold = R;
+    this->correlationsMatOld = this->correlationsMatNew;
     this->Rsd = 1;
     this->getSlaterInverse(x);
     this->gradient = zeros<mat>(this->NumberOfDimensions, 2*this->NumberOfParticles);
     this->computeSlaterGradient(x);
-    this->quantumForceNew = gradient;
-    this->quantumForceOld = gradient;
+    this->setUpJastrow();
+    this->quantumForceNew = 2*(gradient +Jgradient);
+    this->quantumForceOld = quantumForceNew;
+    this->JgradientOld = Jgradient;
     this->gradientOld = gradient;
+
 
 }

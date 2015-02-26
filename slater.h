@@ -21,9 +21,11 @@ public:
     double    a,b,Rsd,Rc,stepSize,D; // a and b are Alpha and Beta
     Orbital*  myorbital[5];
     arma::mat slaterInverse[2];
-    arma::mat R,Rold,spins,correlationsMat;
-    arma::mat gradient, gradientOld;
+    arma::mat R,Rold,spins,correlationsMatNew,correlationsMatOld;
+    arma::mat gradient, gradientOld, Jgradient, JgradientOld;
     arma::mat quantumForceNew, quantumForceOld;
+    arma::mat jastrowLaplacian, jastrowGradient;
+    bool      interacting;
 
 
     Slater(arma::vec a, int N,int Ndim);
@@ -34,15 +36,21 @@ public:
     double    slaterNumericalLaplacianLog (arma::mat x);
     double    slaterAnalyticalLaplacianLog(arma::mat x);
     double    computeGreensFunction       (arma::mat x, arma::mat xOld);
+    double    computeJastrowEnergy        (arma::mat& jastrowGradient);
     void      updateSlaterInverse         (arma::mat x, int i);
     void      setUpForMetropolis          (arma::mat &x);
     void      getSlaterInverse            (arma::mat x);
     void      makeR                       (arma::mat x);
     void      updateR                     (arma::mat x, int i);
-    void      fillSpinMatrix();
-    void      fillCorrelationsMatrix();
+    void      fillSpinMatrix              ();
+    void      fillCorrelationsMatrix      ();
     void      updateCorrelationsMatrix    (int i);
     void      updateSlaterGradient        (arma::mat x, int i);
     void      computeSlaterGradient       (arma::mat x);
+    void      makeJgradient               (arma::mat x);
+    void      computeJastrowGradient      (int particle);
+    void      computeJastrowLaplacian     (int particle);
+    void      computeRc                   (int i);
+    void      setUpJastrow                ();
     arma::mat calculateSlater             (arma::mat x, int upordown);
 };
