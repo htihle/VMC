@@ -4,6 +4,7 @@
 #include <expectationvalues.h>
 #include <orbital.h>
 #include <onedimensionalslater.h>
+#include <heliumwavefunction.h>
 #include <slater.h>
 #include <atom.h>
 
@@ -17,11 +18,14 @@ int main()
 {
     int N = 15;    //# of different a's
     int n = 1e5;  //# of iterations in metropolis
-    int numberofpart = 4;
+    int numberofpart = 2;
+    bool interacting = false;
+
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha
     avec(1) = 0.1;  //beta
-    Slater wave(avec,numberofpart,3); // (a, numParticls, numDims)
+    Slater wave(avec,numberofpart,3,interacting); // (a, numParticls, numDims)
+    //HeliumWaveFunction wave(avec,numberofpart,3,interacting);
     Atom ham(numberofpart); // Z
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);

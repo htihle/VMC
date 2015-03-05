@@ -28,7 +28,7 @@ public:
     bool      interacting;
 
 
-    Slater(arma::vec a, int N,int Ndim);
+    Slater(arma::vec a, int N,int Ndim, bool interacting);
 
     bool      newStep                     (arma::mat &xnew, arma::mat x, int &whichParticle);
     double    laplacianLog                (arma::mat x);

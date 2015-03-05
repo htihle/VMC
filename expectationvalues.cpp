@@ -19,7 +19,7 @@ void ExpectationValues::Sample(mat &xnew,mat &x, int WhichParticle)
 {
 
     x = xnew;
-    wave->updateSlaterInverse(x,WhichParticle);
+//    wave->updateSlaterInverse(x,WhichParticle);
     vec f=zeros<vec>(numberofEVs);
     LocalEnergy = calculateEnergy(x);
     //cout << LocalEnergy << endl;
