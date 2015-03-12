@@ -49,10 +49,12 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
 double Slater::laplacianLog(mat x)
 {
     double lapS = this->slaterAnalyticalLaplacianLog(x);
-
-    //double lap = this->slaterNumericalLaplacianLog(x);
-    //    cout << lap1 -lap<< endl;
-    return lapS;
+    //double lap = this->slaterNumericalLaplacianLog(x); // does not work!!
+    if(interacting) {
+        return lapS + this->computeJastrowEnergy(x);
+    } else {
+       return lapS;
+    }
 }
 
 bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
@@ -85,7 +87,7 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
         this->updateSlaterGradient(x, whichParticle);
         Rcoeff = Rsd*Rc;
     } else {
-        this->updateSlaterInverse(x,whichParticle);
+        this->updateSlaterInverse(x, whichParticle);
         this->updateSlaterGradient(x, whichParticle);
         Rcoeff = Rsd;
     }
@@ -275,13 +277,23 @@ void Slater::computeJastrowLaplacian(int particle) {
 
 double Slater::computeJastrowEnergy(mat& jastrowGradient) { //masse wastage!!
     double sum = 0.0;
-    for (int k = 0; k<NumberOfParticles; k++) {
+    // 1/psi_J nabla^2 psi_J
+    for (int k = 0; k<NumberOfParticles*2; k++) {
+        sum += dot(Jgradient.col(k),Jgradient.col(k));
         for (int i = 0; i<k; i++) {
             sum +=(NumberOfDimensions -1)/R(i,k)*jastrowGradient(i,k) +jastrowLaplacian(i,k);
         }
-        for (int i = k+1; i < NumberOfParticles; i++) {  // *2???????????????????????????????????????????????????????????????
+        for (int i = k+1; i < NumberOfParticles*2; i++) {
             sum +=(NumberOfDimensions -1)/R(k,i)*jastrowGradient(k,i) +jastrowLaplacian(k,i);
         }
+    }
+    // 2 * (1/psi_J nabla psi_J dot 1/psi_S nabla psi_S)
+    for (int k = 0; k<NumberOfParticles*2; k++) {
+        if(Jgradient.col(k).n_elem != NumberOfDimensions){
+            cout << "Noe er galt!!" << endl;
+        }
+
+        sum += 2*dot(Jgradient.col(k),gradient.col(k));
     }
     return sum;
 }

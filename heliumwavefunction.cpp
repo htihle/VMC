@@ -17,22 +17,26 @@ HeliumWaveFunction::HeliumWaveFunction(vec a, int N, int Ndim, bool interacting)
     NumberOfParticles = N;
     NumberOfDimensions = Ndim;
     D = 0.5;
-    stepSize = 0.0005;
+    stepSize = 0.005;
 }
 
 void HeliumWaveFunction::setUpForMetropolis(mat &x) {
     acceptanceCounter = 0;
-//    arma::arma_rng::set_seed(200); // not sure if this helps
+    //    arma::arma_rng::set_seed(200); // not sure if this helps
     x = a*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles);
     this->computeR(x);
     wfold = this->wf();
 }
-double HeliumWaveFunction::laplacianLog(mat x)
-{
-    if(this->interacting){
-        return 0;
+
+double HeliumWaveFunction::laplacianLog(mat x) {
+
+    double EL1 = 2*a*a - a*(2/r1 +2/r2);
+    double EL2 = -2 * (1/(2*(1+b*r12)*(1+b*r12)) * (a*(r1+r2)/r12 * (1 - dot(x.col(0),x.col(1))/(r1*r2)) - 1/(2*(1+b*r12)*(1+b*r12)) - 2/r12 + 2*b/(1+b*r12)));
+
+    if(this->interacting) {
+        return EL1 + EL2;
     } else {
-        return  2*a*a - a*(2/r1 +2/r2);
+        return EL1;
     }
 }
 
@@ -43,42 +47,92 @@ void HeliumWaveFunction::computeR(mat x)
     r2 = norm(x.col(1));
     r12 = norm(x.col(0)-x.col(1));
 }
+
+
 bool HeliumWaveFunction::newStep(mat &xnew, mat x,int &whichParticle) {
-    double Rcoeff= 0;
+
     xnew = x;
     vec num  = randn<vec>(NumberOfDimensions);
     vec num2 = randu<vec>(2);
     whichParticle = round(num2(1)*(this->NumberOfParticles-1));
     //xnew.col(whichParticle) = x.col(whichParticle) + this->stepSize/NumberOfParticles/NumberOfDimensions*a*num; //newstep(x)
     xnew.col(whichParticle) = x.col(whichParticle)
-            + num*sqrt(stepSize);
-            //+ this->quantumForceOld.col(whichParticle) * stepSize * D; //newstep(x)
+            + num*sqrt(stepSize)
+            + this->QF(whichParticle,xnew) * stepSize * D; //newstep(x)
     this->computeR(xnew);
     wfnew = this->wf();
-    Rsd = wfnew/wfold;
+    R = wfnew/wfold;
     bool accept = false;
-    if(interacting){
-//        this->computeRc(whichParticle);
-        Rcoeff = Rsd*Rc;
-    } else {
-        Rcoeff = Rsd;
-    }
 
-    double coeff = Rcoeff*Rcoeff; // * this->computeGreensFunction(xnew, x);
 
-    if(coeff > num2(0)){
+    if(true) {//R*R > num2(0)){
         accept = true;
         wfold = wfnew;
-//        gradientOld        = gradient;
-//        quantumForceOld    = quantumForceNew;
+        //        gradientOld        = gradient;
+        //        quantumForceOld    = quantumForceNew;
         acceptanceCounter +=1;
     } else {
         wfnew = wfold;
-//        gradient           = gradientOld;
-//        quantumForceNew    = quantumForceOld;
+        //        gradient           = gradientOld;
+        //        quantumForceNew    = quantumForceOld;
     }
     return accept;
 }
-double HeliumWaveFunction::wf(){
-    return exp(-a*(r1 +r2));
+
+double HeliumWaveFunction::wf() {
+    double waveFun = exp(-a*(r1 +r2));
+    if (this->interacting) {
+        return waveFun * exp(r12 / (2*(1+b*r12)));
+    } else {
+        return waveFun;
+    }
 }
+
+double HeliumWaveFunction::wf(mat X) {
+    double r1_ = norm(X.col(0));
+    double r2_ = norm(X.col(1));
+    double r12_ = norm(X.col(0)-X.col(1));
+
+    double waveFun = exp(-a*(r1_ +r2_));
+    if (this->interacting) {
+        return waveFun * exp(r12_ / (2*(1+b*r12_)));
+    } else {
+        return waveFun;
+    }
+}
+
+vec HeliumWaveFunction::QF(int whichParticle, mat x){
+
+    //if (this->interacting) {
+    vec qf = zeros<vec>(NumberOfDimensions);
+
+    double h = 0.01;
+    for (int i = 0; i < NumberOfDimensions; i++) {
+        x(i,whichParticle) += h;
+        qf(i) = wf(x);
+        x(i,whichParticle) -= h;
+        qf(i) -= wf(x);
+    }
+    qf = 2*qf / (this->wf() * h);
+    //return qf / (this->wf(x) * h);
+
+    //} else  {
+    vec qf2 = zeros<vec>(NumberOfDimensions);
+    if(whichParticle == 0) {
+        qf2 = -2*x.col(0)/r1;
+        //return QF;
+    } else {
+        qf2 = -2*x.col(1)/r2;
+        //return qf2;
+    }
+    //}
+
+
+
+    /*for (int i = 0; i < NumberOfDimensions; i++) {
+        cout << fabs(qf(i)-qf2(i)) << ", ";
+    }
+    cout << endl;*/
+    return qf2;
+}
+
