@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     hamiltonian.cpp \
     atom.cpp \
     h2p.cpp \
-    heliumwavefunction.cpp
+    heliumwavefunction.cpp \
+    wfTest.cpp
 
 HEADERS += \
     metropolis.h \
@@ -35,6 +36,7 @@ HEADERS += \
     hamiltonian.h \
     atom.h \
     h2p.h \
-    heliumwavefunction.h
+    heliumwavefunction.h \
+    wfTest.h
 
     LIBS+= -larmadillo -lblas -llapack

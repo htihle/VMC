@@ -15,7 +15,7 @@ double Atom::calculatePotential(mat x)
         sum -= Z/ (norm(x.col(i)));
         for(int j= i+1;j<NumberOfParticles;j++)
         {
-            sum += 1/ (norm(x.col(i)-x.col(j)));
+            sum += 1/(norm(x.col(i)-x.col(j)));
         }
     }
     return sum;

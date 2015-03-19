@@ -17,12 +17,12 @@ HeliumWaveFunction::HeliumWaveFunction(vec a, int N, int Ndim, bool interacting)
     NumberOfParticles = N;
     NumberOfDimensions = Ndim;
     D = 0.5;
-    stepSize = 0.005;
+    stepSize = 0.002;
 }
 
 void HeliumWaveFunction::setUpForMetropolis(mat &x) {
     acceptanceCounter = 0;
-    //    arma::arma_rng::set_seed(200); // not sure if this helps
+    arma::arma_rng::set_seed(200); // not sure if this helps
     x = a*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles);
     this->computeR(x);
     wfold = this->wf();
@@ -33,11 +33,34 @@ double HeliumWaveFunction::laplacianLog(mat x) {
     double EL1 = 2*a*a - a*(2/r1 +2/r2);
     double EL2 = -2 * (1/(2*(1+b*r12)*(1+b*r12)) * (a*(r1+r2)/r12 * (1 - dot(x.col(0),x.col(1))/(r1*r2)) - 1/(2*(1+b*r12)*(1+b*r12)) - 2/r12 + 2*b/(1+b*r12)));
 
+
+    // numerical laplacian
+//    double numE = 0;
+//    double sum = 0;
+
+//    double h = 0.0001;
+//    double h2 = h*h;
+//    for (int j = 0; j< NumberOfParticles;j++){
+//        numE = 0;
+//        for (int i = 0; i < NumberOfDimensions; i++) {
+//            x(i,j) += h;
+//            numE += wf(x);
+//            x(i,j) -= 2*h;
+//            numE += wf(x);
+//            x(i,j) += h;
+//        }
+//        numE /=this->wf();
+//        numE -= 6.0;
+//        numE /= h2;
+//        sum += numE;
+//    }
+//    cout << EL1-sum << endl;
     if(this->interacting) {
         return EL1 + EL2;
     } else {
         return EL1;
     }
+
 }
 
 void HeliumWaveFunction::computeR(mat x)
@@ -58,14 +81,15 @@ bool HeliumWaveFunction::newStep(mat &xnew, mat x,int &whichParticle) {
     //xnew.col(whichParticle) = x.col(whichParticle) + this->stepSize/NumberOfParticles/NumberOfDimensions*a*num; //newstep(x)
     xnew.col(whichParticle) = x.col(whichParticle)
             + num*sqrt(stepSize)
-            + this->QF(whichParticle,xnew) * stepSize * D; //newstep(x)
+            + this->QF(whichParticle,x) * stepSize * D; //newstep(x)
+//    cout << this->QF(whichParticle,x) << " " << whichParticle << endl;
     this->computeR(xnew);
     wfnew = this->wf();
     R = wfnew/wfold;
     bool accept = false;
 
 
-    if(true) {//R*R > num2(0)){
+    if(true) { //R*R > num2(0)){
         accept = true;
         wfold = wfnew;
         //        gradientOld        = gradient;
@@ -103,36 +127,35 @@ double HeliumWaveFunction::wf(mat X) {
 
 vec HeliumWaveFunction::QF(int whichParticle, mat x){
 
-    //if (this->interacting) {
-    vec qf = zeros<vec>(NumberOfDimensions);
+    if (true) { //this->interacting) {
+        vec qf = zeros<vec>(NumberOfDimensions);
 
-    double h = 0.01;
-    for (int i = 0; i < NumberOfDimensions; i++) {
-        x(i,whichParticle) += h;
-        qf(i) = wf(x);
-        x(i,whichParticle) -= h;
-        qf(i) -= wf(x);
+        double h = 0.0001;
+        for (int i = 0; i < NumberOfDimensions; i++) {
+            x(i,whichParticle) += h;
+            qf(i) = wf(x);
+            x(i,whichParticle) -= h;
+            qf(i) -= wf(x);
+        }
+        qf = qf / (this->wf()*h);
+        return 2*qf;
+    } else  {
+        vec qf2 = zeros<vec>(NumberOfDimensions);
+        if(whichParticle == 0) {
+            qf2 = -2*x.col(0)/r1;
+            return qf2;
+        } else {
+            qf2 = -2*x.col(1)/r2;
+            return qf2;
+        }
     }
-    qf = 2*qf / (this->wf() * h);
-    //return qf / (this->wf(x) * h);
-
-    //} else  {
-    vec qf2 = zeros<vec>(NumberOfDimensions);
-    if(whichParticle == 0) {
-        qf2 = -2*x.col(0)/r1;
-        //return QF;
-    } else {
-        qf2 = -2*x.col(1)/r2;
-        //return qf2;
-    }
-    //}
 
 
 
-    /*for (int i = 0; i < NumberOfDimensions; i++) {
-        cout << fabs(qf(i)-qf2(i)) << ", ";
-    }
-    cout << endl;*/
-    return qf2;
+//    for (int i = 0; i < NumberOfDimensions; i++) {
+//        cout << fabs(qf(i)-qf2(i)) << ", ";
+//    }
+//    cout << endl;
+//    return qf2;
 }
 

@@ -94,7 +94,7 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
 
     double coeff = Rcoeff*Rcoeff* this->computeGreensFunction(xnew, x);
 
-    if(coeff > num2(0)){
+    if(true){ //coeff > num2(0)){
         accept = true;
 
         Rold               = R;
