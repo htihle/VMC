@@ -10,7 +10,7 @@ Orbital::Orbital() {
 vec Orbital::gradient(arma::vec x, double a, double r) {
 
     int numberOfDimensions = x.size();
-    double h = 0.0001;
+    double h = 0.00001;
     arma::vec H = zeros<vec>(numberOfDimensions);
     vec grad = zeros<vec>(numberOfDimensions);
     for (int i = 0; i < numberOfDimensions; i ++) {
@@ -23,7 +23,7 @@ vec Orbital::gradient(arma::vec x, double a, double r) {
 
 double Orbital::laplacian(arma::vec x,double a, double r) {
     int numberOfDimensions = x.size();
-    double h = 0.0001;
+    double h = 0.00001;
     arma::vec H = zeros<vec>(numberOfDimensions);
     double sum = 0;
 

@@ -9,7 +9,7 @@ void wfTest(HeliumWaveFunction *wf1, Slater *wf2, Atom *H) {
     int numberOfParticles = wf1->NumberOfParticles;
     int numberOfDimensions = wf1->NumberOfDimensions;
 
-    mat x = randn<mat>(numberOfParticles, numberOfDimensions);
+    mat x; // = randn<mat>(numberOfParticles, numberOfDimensions);
 
     wf1->setUpForMetropolis(x);
     wf2->setUpForMetropolis(x);
@@ -40,7 +40,7 @@ void wfTest(HeliumWaveFunction *wf1, Slater *wf2, Atom *H) {
     cout << " * Test 2: Wave function:\n";
     cout << "-----------------------------\n";
     double wave1 = wf1->wf();
-    double wave2 = det(wf2->calculateSlater(x,0))*det(wf2->calculateSlater(x,1));
+    double wave2 = det(wf2->calculateSlater(x,0))*det(wf2->calculateSlater(x,1)); //remember to fix this for interacting
     cout << "   - wf1: " << wave1 << endl;
     cout << "   - wf2: " << wave2 << endl;
     cout << "                                        Difference = " << fabs(wave1-wave2) << endl << endl;

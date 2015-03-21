@@ -20,9 +20,9 @@ int main()
 {
 
     int N = 1;    //# of different a's
-    int n = 1e3;  //# of iterations in metropolis
+    int n = 1e5;  //# of iterations in metropolis
     int numberofpart = 2;
-    bool interacting = false;
+    bool interacting = true;
 
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha

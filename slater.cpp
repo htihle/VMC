@@ -403,7 +403,7 @@ void Slater::fillSpinMatrix() {
 void Slater::setUpForMetropolis(mat &x) {
     acceptanceCounter = 0;
 //    arma::arma_rng::set_seed(200); // not sure if this helps
-    x = a*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles*2);
+//   x = a*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles*2); //comment this out when testing (until we find a better way)
     this->makeR(x);
     this->fillSpinMatrix();
     this->fillCorrelationsMatrix();
@@ -414,7 +414,12 @@ void Slater::setUpForMetropolis(mat &x) {
     this->gradient = zeros<mat>(this->NumberOfDimensions, 2*this->NumberOfParticles);
     this->computeSlaterGradient(x);
     this->setUpJastrow();
-    this->quantumForceNew = 2*(gradient + Jgradient);
+    this->makeJgradient(x);
+    if(interacting) {
+        this->quantumForceNew = 2*(gradient + Jgradient);
+    } else {
+        this->quantumForceNew = 2*gradient;
+    }
     this->quantumForceOld = quantumForceNew;
     this->JgradientOld = Jgradient;
     this->gradientOld = gradient;
