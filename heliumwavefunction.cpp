@@ -17,7 +17,7 @@ HeliumWaveFunction::HeliumWaveFunction(vec a, int N, int Ndim, bool interacting)
     NumberOfParticles = N;
     NumberOfDimensions = Ndim;
     D = 0.5;
-    stepSize = 0.002;
+    stepSize = 0.001;
 }
 
 void HeliumWaveFunction::setUpForMetropolis(mat &x) {
@@ -31,7 +31,7 @@ void HeliumWaveFunction::setUpForMetropolis(mat &x) {
 double HeliumWaveFunction::laplacianLog(mat x) {
 
     double EL1 = 2*a*a - a*(2/r1 +2/r2);
-    double EL2 = -2 * (1/(2*(1+b*r12)*(1+b*r12)) * (a*(r1+r2)/r12 * (1 - dot(x.col(0),x.col(1))/(r1*r2)) - 1/(2*(1+b*r12)*(1+b*r12)) - 2/r12 + 2*b/(1+b*r12)));
+    double EL2 = -2 * (1/(2*(1+b*r12)*(1+b*r12)) * (a*(r1+r2)/r12 * (1 - dot(x.col(0),x.col(1))/(r1*r2)) - 1/(2*(1+b*r12)*(1+b*r12)) -2/r12 + 2*b/(1+b*r12)));
 
 
     // numerical laplacian

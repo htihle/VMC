@@ -36,7 +36,7 @@ public:
     double    slaterNumericalLaplacianLog (arma::mat x);
     double    slaterAnalyticalLaplacianLog(arma::mat x);
     double    computeGreensFunction       (arma::mat x, arma::mat xOld);
-    double    computeJastrowEnergy        (arma::mat& jastrowGradient);
+    double    computeJastrowEnergy        ();
     void      updateSlaterInverse         (arma::mat x, int i);
     void      setUpForMetropolis          (arma::mat &x);
     void      getSlaterInverse            (arma::mat x);
