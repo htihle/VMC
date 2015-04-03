@@ -24,8 +24,9 @@ void Metropolis::Run(int n) {
         } else {
             expect->ReSample(xnew,x);
         }
+        if(i == (n/10)) expect->ev = zeros<vec>(4);
     }
-    expect->ev /=(n+1);
+    expect->ev /=((n/10)*9+1);
     cout << "Acceptance rate: " << double(wave->acceptanceCounter)/n << endl;
 }
 

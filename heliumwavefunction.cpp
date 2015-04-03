@@ -130,7 +130,7 @@ vec HeliumWaveFunction::QF(int whichParticle, mat x){
     if (true) { //this->interacting) {
         vec qf = zeros<vec>(NumberOfDimensions);
 
-        double h = 0.00001;
+        double h = 0.0001;
         for (int i = 0; i < NumberOfDimensions; i++) {
             x(i,whichParticle) += h;
             qf(i) = wf(x);

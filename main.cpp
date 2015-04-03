@@ -19,20 +19,20 @@ using namespace arma;
 int main()
 {
     int N = 10;    //# of different a's
-    int n = 1e5;  //# of iterations in metropolis
+    int n = 3e5;  //# of iterations in metropolis
     int numberofpart = 10;
-    bool interacting = false;
+    bool interacting = true;
 
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha
-    avec(1) = 0.098; //0.35;  //beta He: 0.35 Be: 0.098 Ne: 0.091
+    avec(1) = 0.091; //0.35;  //beta He: 0.35 Be: 0.098 Ne: 0.091
     Slater wave(avec,numberofpart,3,interacting); // (a, numParticls, numDims)
 //    HeliumWaveFunction wave(avec,numberofpart,3,interacting);
     Atom ham(numberofpart); // Z
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(numberofpart-0.5,numberofpart,N);
+    vec a = linspace(numberofpart-1,numberofpart+2,N);
     vec en;
 
     for(int i= 0; i<N ; i++) {

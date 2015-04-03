@@ -33,15 +33,16 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
     D = 0.5;
     switch(NumberOfParticles*2) {
     case(2) :
-        stepSize = 0.001;
+        stepSize = 0.002;
         break;
     case(4) :
-        stepSize = 0.001;   //nan when time step too large ?? Why? figure this out and you have found the problem
-        break;
-    case(10) :
         stepSize = 0.001;
         break;
+    case(10) :
+        stepSize = 0.0005;  //this works well with grnfnc, if not to small or too large timestep (aim for 0.999 or close)
+        break;
     default :
+        stepSize = 0.0005;
         break;
     }
 }
@@ -70,6 +71,13 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
     xnew.col(whichParticle) = x.col(whichParticle)
             + num*sqrt(stepSize)
             + this->quantumForceOld.col(whichParticle) * stepSize * D; //newstep(x)
+//    if( norm(xnew.col(whichParticle)) > 20) {//isnan(norm(xnew.col(whichParticle))) && (! isnan(norm(x.col(whichParticle))))) {
+//        cout << "Top: " << endl;
+//        cout << xnew.col(whichParticle) << endl;
+//        cout << this->quantumForceOld.col(whichParticle) << endl;
+//        cout << this->gradientOld.col(whichParticle) << endl;
+//        cout << this->JgradientOld.col(whichParticle) << endl;
+//    }
     Rsd = 0;
     this->updateR(xnew,whichParticle);
     for(int j = 0;j<NumberOfParticles;j++) // make a function get Rsd ??
@@ -79,17 +87,17 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
     }
     bool accept = false;
     if(interacting){
-        this->updateSlaterInverse(x,whichParticle);
+        this->updateSlaterGradient(xnew, whichParticle); //dobbelsjekk rekkefølge og logikk her
+        this->updateSlaterInverse(xnew,whichParticle);
         this->updateCorrelationsMatrix(whichParticle);
         this->computeJastrowGradient(whichParticle);
-        this->makeJgradient(x); // implement updateJgradient
+        this->makeJgradient(xnew); // implement updateJgradient
         this->computeJastrowLaplacian(whichParticle);
         this->computeRc(whichParticle);
-        this->updateSlaterGradient(x, whichParticle);
         Rcoeff = Rsd*Rc;
     } else {
-        this->updateSlaterInverse(x, whichParticle);
-        this->updateSlaterGradient(x, whichParticle);
+        this->updateSlaterInverse(xnew, whichParticle);
+        this->updateSlaterGradient(xnew, whichParticle);
         Rcoeff = Rsd;
     }
 
@@ -129,7 +137,6 @@ mat Slater::calculateSlater(mat x,int upordown) {
     mat Slater = zeros<mat>(NumberOfParticles,NumberOfParticles);
     for(int i = 0;i<NumberOfParticles;i++) {
         for(int j = 0; j<NumberOfParticles;j++) {
-
             Slater(i,j) = myorbital[j]->eval(x.col(i+upordown*NumberOfParticles),a,R(i+upordown*NumberOfParticles,i+upordown*NumberOfParticles));
         }
     }
@@ -192,13 +199,6 @@ double Slater::slaterAnalyticalLaplacianLog(mat x) {
     for (int k = 0; k < splitSlater; k++) {
         for(int i =0; i<NumberOfParticles;i++) {
             for(int j = 0;j<NumberOfParticles;j++) {
-                //                double p = norm(x.col(i+k*NumberOfParticles)) - R(i+k*NumberOfParticles,i+k*NumberOfParticles);
-                //                if (abs(p) > 0.00001) {
-                //                    cout << x << R << endl;
-                //                    cout << p << endl;
-                //                    cout << i+k*NumberOfParticles << endl;
-                //                }
-
                 sum += myorbital[j]->laplacian(x.col(i+k*NumberOfParticles),a, R(i+k*NumberOfParticles,i+k*NumberOfParticles))
                         *slaterInverse[k](j,i); //for some reason j and i are switched
             }
@@ -298,10 +298,6 @@ double Slater::computeJastrowEnergy() { //masse wastage!!
     }
     // 2 * (1/psi_J nabla psi_J dot 1/psi_S nabla psi_S)
     for (int k = 0; k<NumberOfParticles*2; k++) {
-        if(Jgradient.col(k).n_elem != NumberOfDimensions){
-            cout << "Noe er galt!!" << endl;
-        }
-
         sum += 2*dot(Jgradient.col(k),gradient.col(k));
     }
     return sum;
