@@ -39,7 +39,7 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
         stepSize = 0.001;
         break;
     case(10) :
-        stepSize = 0.0005;  //this works well with grnfnc, if not to small or too large timestep (aim for 0.999 or close)
+        stepSize = 0.0002;  //this works well with grnfnc, if not to small or too large timestep (aim for 0.999 or close) increase number of steps for small step-sizes
         break;
     default :
         stepSize = 0.0005;

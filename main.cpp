@@ -18,8 +18,8 @@ using namespace arma;
 
 int main()
 {
-    int N = 10;    //# of different a's
-    int n = 3e5;  //# of iterations in metropolis
+    int N = 30;    //# of different a's
+    int n = 3e6;  //# of iterations in metropolis
     int numberofpart = 10;
     bool interacting = true;
 
@@ -32,14 +32,13 @@ int main()
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(numberofpart-1,numberofpart+2,N);
+    vec a = linspace(numberofpart-1,numberofpart+1,N);
     vec en;
-
+    cout << randu<mat>(3,3) << endl;
     for(int i= 0; i<N ; i++) {
         wave.a = a(i);
 
         mysys.Run(n);
-
 
         en = expect.ev;
         cout << "a: "<< wave.a << endl;
