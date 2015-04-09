@@ -18,14 +18,14 @@ using namespace arma;
 
 int main()
 {
-    int N = 30;    //# of different a's
-    int n = 3e6;  //# of iterations in metropolis
-    int numberofpart = 10;
+    int N = 5;    //# of different a's
+    int n = 9e5;  //# of iterations in metropolis
+    int numberofpart = 2;
     bool interacting = true;
 
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha
-    avec(1) = 0.091; //0.35;  //beta He: 0.35 Be: 0.098 Ne: 0.091
+    avec(1) = 0.35; //0.35;  //beta He: 0.35 Be: 0.098 Ne: 0.091
     Slater wave(avec,numberofpart,3,interacting); // (a, numParticls, numDims)
 //    HeliumWaveFunction wave(avec,numberofpart,3,interacting);
     Atom ham(numberofpart); // Z
@@ -34,11 +34,12 @@ int main()
 
     vec a = linspace(numberofpart-1,numberofpart+1,N);
     vec en;
-    cout << randu<mat>(3,3) << endl;
     for(int i= 0; i<N ; i++) {
-        wave.a = a(i);
+        wave.a = 1.85;//a(i);
 
         mysys.Run(n);
+
+
 
         en = expect.ev;
         cout << "a: "<< wave.a << endl;
@@ -47,6 +48,9 @@ int main()
         cout << "meanpos: " << en(2) << endl;
         cout << "Stddev: " << sqrt(en(3) -en(2)*en(2))<< endl << endl;
         expect.ev = zeros<vec>(4);
+
+        cout << "snitt: " << wave.sum_snitt / n << endl;
+        wave.sum_snitt = 0;
     }
 
 

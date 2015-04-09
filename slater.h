@@ -19,6 +19,7 @@ public:
     int       splitSlater;
     int       sizeOfSlater;
     double    a,b,Rsd,Rc,stepSize,D; // a and b are Alpha and Beta
+    double sum_snitt;
     Orbital*  myorbital[5];
     arma::mat slaterInverse[2];
     arma::mat R,Rold,spins,correlationsMatNew,correlationsMatOld;
