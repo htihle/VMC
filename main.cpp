@@ -7,6 +7,7 @@
 #include <Wavefunctions/heliumwavefunction.h>
 #include <Wavefunctions/slater.h>
 #include <Hamiltonians/atom.h>
+#include <Hamiltonians/harmonicoscillator.h>
 
 #include <Wavefunctions/wfTest.h>
 
@@ -18,26 +19,33 @@ using namespace arma;
 
 int main()
 {
-    int N = 5;    //# of different a's
-    int n = 9e5;  //# of iterations in metropolis
+    int N = 20;    //# of different a's
+    int n = 1e5;  //# of iterations in metropolis
 
-    int numberofpart = 2;
+    int numberofpart = 1;
     bool interacting = true;
 
     vec avec = zeros<vec>(2);
     avec(0) = 1;    //alpha
     avec(1) = 0.35; //0.35;  //beta He: 0.35 Be: 0.098 Ne: 0.091
-    Slater wave(avec,numberofpart,3,interacting); // (a, numParticls, numDims)
+
+    /** WAVEFUNCTION **/
+//    Slater wave(avec,numberofpart,3,interacting); // (a, numParticls, numDims)
 //    HeliumWaveFunction wave(avec,numberofpart,3,interacting);
-    Atom ham(numberofpart); // Z
+    OneDimensionalSlater wave(avec, numberofpart);
+
+    /** HAMILTONIAN **/
+//    Atom ham(numberofpart); // Z
+    HarmonicOscillator ham(numberofpart, 1.0);
+
     ExpectationValues expect(4,&wave, &ham);
     Metropolis mysys(&expect, &wave);
 
-    vec a = linspace(numberofpart-1,numberofpart+1,N);
+    vec a = linspace(0.1,1.9,N);//linspace(numberofpart-1,numberofpart+1,N);
     vec en;
 
     for(int i= 0; i<N ; i++) {
-        wave.a = 1.85;//a(i);
+        wave.a = 1;//a(i);
 
         mysys.Run(n);
 
@@ -51,8 +59,8 @@ int main()
         cout << "Stddev: " << sqrt(en(3) -en(2)*en(2))<< endl << endl;
         expect.ev = zeros<vec>(4);
 
-        cout << "snitt: " << wave.sum_snitt / n << endl;
-        wave.sum_snitt = 0;
+        //cout << "snitt: " << wave.sum_snitt / n << endl;
+        //  wave.sum_snitt = 0;
     }
 
 

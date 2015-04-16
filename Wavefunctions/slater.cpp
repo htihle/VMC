@@ -43,10 +43,10 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
     D = 0.5;
     switch(NumberOfParticles) {
     case(2) :
-        stepSize = 0.002;
+        stepSize = 0.001;
         break;
     case(4) :
-        stepSize = 0.001;
+        stepSize = 0.0005;
         break;
     case(10) :
         stepSize = 0.0002;  //this works well with grnfnc, if not to small or too large timestep (aim for 0.999 or close) increase number of steps for small step-sizes
@@ -305,7 +305,7 @@ double Slater::computeJastrowEnergy() { //masse wastage!!
     }
     //cout << sum << endl;
     sum_snitt += sum;
-    return sum + sum2;
+    return sum;
 }
 
 void Slater::setUpJastrow() {

@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     Wavefunctions/onedimensionalslater.cpp \
     Wavefunctions/wavefunction.cpp \
     Wavefunctions/slater.cpp \
-    Wavefunctions/wfTest.cpp
+    Wavefunctions/wfTest.cpp \
+    Hamiltonians/harmonicoscillator.cpp
 
 HEADERS += \
     metropolis.h \
@@ -37,6 +38,7 @@ HEADERS += \
     Wavefunctions/wavefunction.h \
     Wavefunctions/slater.h \
     Wavefunctions/onedimensionalslater.h \
-    Wavefunctions/heliumwavefunction.h
+    Wavefunctions/heliumwavefunction.h \
+    Hamiltonians/harmonicoscillator.h
 
     LIBS+= -larmadillo -lblas -llapack
