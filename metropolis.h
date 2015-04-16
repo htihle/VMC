@@ -2,7 +2,7 @@
 #define METROPOLIS_H
 #include <armadillo>
 #include <expectationvalues.h>
-#include <wavefunction.h>
+#include <Wavefunctions/wavefunction.h>
 
 class Metropolis
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include <orbital.h>
+#include <Orbitals/orbital.h>
 #include <armadillo>
 
 class H1s : public Orbital

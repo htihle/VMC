@@ -1,12 +1,12 @@
 #pragma once
-#include <wavefunction.h>
-#include <orbital.h>
-#include <ho0.h>
-#include <ho1.h>
-#include <ho2.h>
-#include <h1s.h>
-#include <h2s.h>
-#include <h2p.h>
+#include <Wavefunctions/wavefunction.h>
+#include <Orbitals/orbital.h>
+#include <Orbitals/ho0.h>
+#include <Orbitals/ho1.h>
+#include <Orbitals/ho2.h>
+#include <Orbitals/h1s.h>
+#include <Orbitals/h2s.h>
+#include <Orbitals/h2p.h>
 #include <armadillo>
 
 

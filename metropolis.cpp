@@ -1,7 +1,7 @@
 #include "metropolis.h"
 #include <armadillo>
 #include <expectationvalues.h>
-#include <wavefunction.h>
+#include <Wavefunctions/wavefunction.h>
 
 using namespace arma;
 using namespace std;

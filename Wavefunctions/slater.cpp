@@ -1,4 +1,4 @@
-#include <slater.h>
+#include <Wavefunctions/slater.h>
 #include <armadillo>
 
 using namespace std;

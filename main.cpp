@@ -2,13 +2,13 @@
 #include <iomanip>
 #include <metropolis.h>
 #include <expectationvalues.h>
-#include <orbital.h>
-#include <onedimensionalslater.h>
-#include <heliumwavefunction.h>
-#include <slater.h>
-#include <atom.h>
+#include <Orbitals/orbital.h>
+#include <Wavefunctions/onedimensionalslater.h>
+#include <Wavefunctions/heliumwavefunction.h>
+#include <Wavefunctions/slater.h>
+#include <Hamiltonians/atom.h>
 
-#include <wfTest.h>
+#include <Wavefunctions/wfTest.h>
 
 using namespace std;
 using namespace arma;
@@ -16,8 +16,7 @@ using namespace arma;
 
 
 
-int main()
-{
+int main() {
     int N = 5;    //# of different a's
     int n = 9e5;  //# of iterations in metropolis
     int numberofpart = 2;

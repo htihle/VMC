@@ -6,37 +6,37 @@ CONFIG -= qt
 SOURCES += main.cpp \
     metropolis.cpp \
     expectationvalues.cpp \
-    wavefunction.cpp \
-    orbital.cpp \
-    ho0.cpp \
-    ho1.cpp \
-    ho2.cpp \
-    onedimensionalslater.cpp \
-    slater.cpp \
-    h1s.cpp \
-    h2s.cpp \
-    hamiltonian.cpp \
-    atom.cpp \
-    h2p.cpp \
-    heliumwavefunction.cpp \
-    wfTest.cpp
+    Orbitals/h1s.cpp \
+    Orbitals/h2p.cpp \
+    Orbitals/h2s.cpp \
+    Orbitals/ho0.cpp \
+    Orbitals/ho1.cpp \
+    Orbitals/ho2.cpp \
+    Orbitals/orbital.cpp \
+    Hamiltonians/hamiltonian.cpp \
+    Hamiltonians/atom.cpp \
+    Wavefunctions/heliumwavefunction.cpp \
+    Wavefunctions/onedimensionalslater.cpp \
+    Wavefunctions/wavefunction.cpp \
+    Wavefunctions/slater.cpp \
+    Wavefunctions/wfTest.cpp
 
 HEADERS += \
     metropolis.h \
     expectationvalues.h \
-    wavefunction.h \
-    orbital.h \
-    ho0.h \
-    ho1.h \
-    ho2.h \
-    onedimensionalslater.h \
-    slater.h \
-    h1s.h \
-    h2s.h \
-    hamiltonian.h \
-    atom.h \
-    h2p.h \
-    heliumwavefunction.h \
-    wfTest.h
+    Orbitals/h1s.h \
+    Orbitals/h2p.h \
+    Orbitals/h2s.h \
+    Orbitals/ho0.h \
+    Orbitals/ho1.h \
+    Orbitals/ho2.h \
+    Orbitals/orbital.h \
+    Hamiltonians/atom.h \
+    Hamiltonians/hamiltonian.h \
+    Wavefunctions/wfTest.h \
+    Wavefunctions/wavefunction.h \
+    Wavefunctions/slater.h \
+    Wavefunctions/onedimensionalslater.h \
+    Wavefunctions/heliumwavefunction.h
 
     LIBS+= -larmadillo -lblas -llapack

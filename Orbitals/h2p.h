@@ -1,12 +1,12 @@
 #pragma once
-#include <orbital.h>
+#include <Orbitals/orbital.h>
 #include <armadillo>
 
-class H2s : public Orbital
+class H2p : public Orbital
 {
 public:
-    H2s()  : Orbital() {}
+    H2p(int state);
     double eval(arma::vec x, double a, double r);
+    int state;
 };
-
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <wavefunction.h>
+#include <Wavefunctions/wavefunction.h>
 #include <armadillo>
 
 

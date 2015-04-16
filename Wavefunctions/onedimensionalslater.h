@@ -1,7 +1,7 @@
 //#ifndef ONEDIMENSIONALSLATER_H
 //#define ONEDIMENSIONALSLATER_H
-//#include <wavefunction.h>
-//#include <orbital.h>
+//#include <Wavefunctions/wavefunction.h>
+//#include <Orbitals/orbital.h>
 //#include <ho0.h>
 //#include <ho1.h>
 //#include <ho2.h>

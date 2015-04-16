@@ -1,6 +1,6 @@
 #ifndef HO1_H
 #define HO1_H
-#include <orbital.h>
+#include <Orbitals/orbital.h>
 
 class HO1 : public Orbital
 {

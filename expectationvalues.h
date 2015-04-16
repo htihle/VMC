@@ -1,8 +1,8 @@
 #ifndef EXPECTATIONVALUES_H
 #define EXPECTATIONVALUES_H
 #include <armadillo>
-#include <wavefunction.h>
-#include <hamiltonian.h>
+#include <Wavefunctions/wavefunction.h>
+#include <Hamiltonians/hamiltonian.h>
 
 class ExpectationValues
 {

@@ -1,6 +1,6 @@
 #ifndef ATOM_H
 #define ATOM_H
-#include <hamiltonian.h>
+#include <Hamiltonians/hamiltonian.h>
 #include <armadillo>
 
 class Atom : public Hamiltonian
