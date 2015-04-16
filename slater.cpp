@@ -19,6 +19,15 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
     //    myorbital[0] = new HO0();
     //    myorbital[1] = new HO1();
     //    myorbital[2] = new HO2();
+
+//    if (HF) {
+//        // load from file.
+//    } else {
+
+//    }
+
+    sum_snitt = 0;
+
     myorbital[0] = new H1s();
     myorbital[1] = new H2s();
     myorbital[2] = new H2p(0);
@@ -291,10 +300,19 @@ double Slater::computeJastrowEnergy() { //masse wastage!!
         }
     }
     // 2 * (1/psi_J nabla psi_J dot 1/psi_S nabla psi_S)
+<<<<<<< HEAD
     for (int k = 0; k<NumberOfParticles; k++) {
         sum += 2*dot(Jgradient.col(k),gradient.col(k));
+=======
+    double sum2 = 0;
+    for (int k = 0; k<NumberOfParticles*2; k++) {
+        sum2 += 2*dot(Jgradient.col(k),gradient.col(k));
+        cout << norm(Jgradient.col(k))<< endl;
+>>>>>>> c40061f69a1863090866b3133a0a9fd6925a2a19
     }
-    return sum;
+    //cout << sum << endl;
+    sum_snitt += sum;
+    return sum + sum2;
 }
 
 void Slater::setUpJastrow() {
