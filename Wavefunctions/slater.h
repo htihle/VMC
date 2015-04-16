@@ -17,7 +17,7 @@ public:
 //    int       NumberOfDimensions;
     int       whichSlater;
     int       splitSlater;
-    int       sizeOfSlater;
+    int       ParticlesInSlater;
     double    a,b,Rsd,Rc,stepSize,D; // a and b are Alpha and Beta
     double sum_snitt;
     Orbital*  myorbital[5];

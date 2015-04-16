@@ -33,14 +33,15 @@ Slater::Slater(vec a, int N, int Ndim, bool interacting) : WaveFunction(a,N,Ndim
     myorbital[2] = new H2p(0);
     myorbital[3] = new H2p(1);
     myorbital[4] = new H2p(2);
-    NumberOfParticles = N/2;
+    NumberOfParticles = N;
+    ParticlesInSlater = N/splitSlater;
     NumberOfDimensions = Ndim;
-    R = zeros<mat>(NumberOfParticles*2,NumberOfParticles*2);
+    R = zeros<mat>(NumberOfParticles,NumberOfParticles);
     spins = R;
     correlationsMatNew = R;
     correlationsMatOld = correlationsMatNew;
     D = 0.5;
-    switch(NumberOfParticles*2) {
+    switch(NumberOfParticles) {
     case(2) :
         stepSize = 0.002;
         break;
@@ -73,26 +74,18 @@ bool Slater::newStep(mat &xnew, mat x,int &whichParticle) {
     xnew = x;
     vec num  = randn<vec>(NumberOfDimensions);
     vec num2 = randu<vec>(2);
-    whichParticle = round(num2(1)*(this->NumberOfParticles*2-1));
-    whichSlater = whichParticle / NumberOfParticles;
-    //xnew.col(whichParticle) = x.col(whichParticle) + this->stepSize/NumberOfParticles/NumberOfDimensions*a*num; //newstep(x)
-
+    whichParticle = round(num2(1)*(this->NumberOfParticles-1));
+    whichSlater = whichParticle / ParticlesInSlater;
     xnew.col(whichParticle) = x.col(whichParticle)
             + num*sqrt(stepSize)
             + this->quantumForceOld.col(whichParticle) * stepSize * D; //newstep(x)
-//    if( norm(xnew.col(whichParticle)) > 20) {//isnan(norm(xnew.col(whichParticle))) && (! isnan(norm(x.col(whichParticle))))) {
-//        cout << "Top: " << endl;
-//        cout << xnew.col(whichParticle) << endl;
-//        cout << this->quantumForceOld.col(whichParticle) << endl;
-//        cout << this->gradientOld.col(whichParticle) << endl;
-//        cout << this->JgradientOld.col(whichParticle) << endl;
-//    }
+
     Rsd = 0;
     this->updateR(xnew,whichParticle);
-    for(int j = 0;j<NumberOfParticles;j++) // make a function get Rsd ??
+    for(int j = 0;j<ParticlesInSlater;j++) // make a function get Rsd ??
     {
         Rsd += myorbital[j]->eval(xnew.col(whichParticle),a, R(whichParticle, whichParticle))*
-                slaterInverse[whichSlater](j,whichParticle-whichSlater*NumberOfParticles);
+                slaterInverse[whichSlater](j,whichParticle-whichSlater*ParticlesInSlater);
     }
     bool accept = false;
     if(interacting){
@@ -143,10 +136,10 @@ double Slater::evaluateSlater(mat x) {
 }
 
 mat Slater::calculateSlater(mat x,int upordown) {
-    mat Slater = zeros<mat>(NumberOfParticles,NumberOfParticles);
-    for(int i = 0;i<NumberOfParticles;i++) {
-        for(int j = 0; j<NumberOfParticles;j++) {
-            Slater(i,j) = myorbital[j]->eval(x.col(i+upordown*NumberOfParticles),a,R(i+upordown*NumberOfParticles,i+upordown*NumberOfParticles));
+    mat Slater = zeros<mat>(ParticlesInSlater,ParticlesInSlater);
+    for(int i = 0;i<ParticlesInSlater;i++) {
+        for(int j = 0; j<ParticlesInSlater;j++) {
+            Slater(i,j) = myorbital[j]->eval(x.col(i+upordown*ParticlesInSlater),a,R(i+upordown*ParticlesInSlater,i+upordown*ParticlesInSlater));
         }
     }
     return Slater;
@@ -154,9 +147,9 @@ mat Slater::calculateSlater(mat x,int upordown) {
 
 double Slater::slaterNumericalLaplacianLog(mat x) { // does not work with R !!!!!!!!!!!!
     double h= 0.0001;
-    mat mod = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
+    mat mod = zeros<mat>(NumberOfDimensions, NumberOfParticles);
     double sum = 0;
-    for(int i = 0;i<NumberOfParticles*2;i++) {
+    for(int i = 0;i<NumberOfParticles;i++) {
         for (int j = 0; j<NumberOfDimensions; j++) {
             mod(j,i)+=h;
             sum += this->evaluateSlater(x+mod) +this->evaluateSlater(x-mod);
@@ -164,10 +157,11 @@ double Slater::slaterNumericalLaplacianLog(mat x) { // does not work with R !!!!
         }
     }
     sum/=this->evaluateSlater(x);
-    sum -=NumberOfParticles*4*NumberOfDimensions;
+    sum -=ParticlesInSlater*4*NumberOfDimensions;
     sum/=h*h;
     return sum;
 }
+
 void Slater::getSlaterInverse(mat x)
 {
     for (int i = 0; i < splitSlater; i++) {
@@ -178,7 +172,7 @@ void Slater::getSlaterInverse(mat x)
 
 void Slater::makeR(mat x)
 {
-    for(int i=0;i<NumberOfParticles*2;i++)
+    for(int i=0;i<NumberOfParticles;i++)
     {
         this->updateR(x,i);
     }
@@ -192,7 +186,7 @@ void Slater::updateR(mat x, int i){
         sum = norm(x.col(i)- x.col(k));
         R(k,i) = sum; //R is the matrix of distances
     }
-    for(int k=i+1;k<NumberOfParticles*2;k++){
+    for(int k=i+1;k<NumberOfParticles;k++){
         sum = norm(x.col(i)- x.col(k));
         R(i,k) = sum; //R is the matrix of distances
     }
@@ -206,9 +200,9 @@ double Slater::slaterAnalyticalLaplacianLog(mat x) {
     // the ones we have moved (or is that correct?)
     double sum = 0;
     for (int k = 0; k < splitSlater; k++) {
-        for(int i =0; i<NumberOfParticles;i++) {
-            for(int j = 0;j<NumberOfParticles;j++) {
-                sum += myorbital[j]->laplacian(x.col(i+k*NumberOfParticles),a, R(i+k*NumberOfParticles,i+k*NumberOfParticles))
+        for(int i =0; i<ParticlesInSlater;i++) {
+            for(int j = 0;j<ParticlesInSlater;j++) {
+                sum += myorbital[j]->laplacian(x.col(i+k*ParticlesInSlater),a, R(i+k*ParticlesInSlater,i+k*ParticlesInSlater))
                         *slaterInverse[k](j,i); //for some reason j and i are switched
             }
         }
@@ -219,15 +213,15 @@ double Slater::slaterAnalyticalLaplacianLog(mat x) {
 void Slater::updateSlaterInverse(mat x, int i)
 {
     //    slaterInverse[whichSlater]= calculateSlater(x,whichSlater).i();
-    i = i -whichSlater*NumberOfParticles;
+    i = i -whichSlater*ParticlesInSlater;
 
     mat oldSlater = slaterInverse[whichSlater];
-    for (int k = 0;k<NumberOfParticles; k++) {
-        for (int j = 0; j<NumberOfParticles; j++) {
+    for (int k = 0;k<ParticlesInSlater; k++) {
+        for (int j = 0; j<ParticlesInSlater; j++) {
             if(j != i) {
                 double sum = 0;
-                for( int l = 0; l< NumberOfParticles; l++) {
-                    sum += oldSlater(l,j) * myorbital[l]->eval(x.col(i+whichSlater*NumberOfParticles), a, R(i+whichSlater*NumberOfParticles,i+whichSlater*NumberOfParticles));
+                for( int l = 0; l< ParticlesInSlater; l++) {
+                    sum += oldSlater(l,j) * myorbital[l]->eval(x.col(i+whichSlater*ParticlesInSlater), a, R(i+whichSlater*ParticlesInSlater,i+whichSlater*ParticlesInSlater));
                 }
                 slaterInverse[whichSlater](k,j) = oldSlater(k,j) - oldSlater(k,i) * sum / Rsd;
             }
@@ -240,8 +234,8 @@ void Slater::updateSlaterInverse(mat x, int i)
 
 /* Compute all the correlation factors. */
 void Slater::fillCorrelationsMatrix() {
-    for (int i = 0; i < NumberOfParticles*2; i++) {
-        for (int j = i+1; j < NumberOfParticles*2; j++) {
+    for (int i = 0; i < NumberOfParticles; i++) {
+        for (int j = i+1; j < NumberOfParticles; j++) {
             correlationsMatNew(i,j) = spins(i,j) * R(i,j) / (1 + b * R(i,j));
         }
     }
@@ -253,7 +247,7 @@ void Slater::updateCorrelationsMatrix(int particle) {
     for (int i = 0; i < k; i++) {
         correlationsMatNew(i,k) = spins(i,k) * R(i,k) / (1 + b * R(i,k));
     }
-    for (int i = (k+1); i < NumberOfParticles*2; i++) {
+    for (int i = (k+1); i < NumberOfParticles; i++) {
         correlationsMatNew(k,i) = spins(k,i) * R(k,i) / (1 + b * R(k,i));
     }
 }
@@ -264,7 +258,7 @@ void Slater::computeRc(int i) {
     for (int j = 0; j < i; j++) {
         Rc += correlationsMatNew(j,i) - correlationsMatOld(j,i);
     }
-    for (int j = i+1;j<NumberOfParticles*2; j++) {
+    for (int j = i+1;j<NumberOfParticles; j++) {
         Rc += correlationsMatNew(i,j) - correlationsMatOld(i,j);
     }
     Rc = exp(Rc);
@@ -276,7 +270,7 @@ void Slater::computeJastrowGradient(int particle) {
         double factor = 1+b*R(i,particle);
         jastrowGradient(i,particle) = spins(i,particle)/(factor*factor);
     }
-    for (int i = particle+1; i < NumberOfParticles*2; i++) {
+    for (int i = particle+1; i < NumberOfParticles; i++) {
         double factor = 1+b*R(particle,i);
         jastrowGradient(particle,i) = spins(particle,i)/(factor*factor);
     }
@@ -287,7 +281,7 @@ void Slater::computeJastrowLaplacian(int particle) {
         double factor = 1 + b*R(i,particle);
         jastrowLaplacian(i,particle) = -2*spins(i,particle)*b/(factor*factor*factor);
     }
-    for (int i = particle+1; i < NumberOfParticles*2; i++) {
+    for (int i = particle+1; i < NumberOfParticles; i++) {
         double factor = 1 + b*R(particle,i);
         jastrowLaplacian(particle,i) = -2*spins(particle,i)*b/(factor*factor*factor);
     }
@@ -296,20 +290,18 @@ void Slater::computeJastrowLaplacian(int particle) {
 double Slater::computeJastrowEnergy() { //masse wastage!!
     double sum = 0.0;
     // 1/psi_J nabla^2 psi_J
-    for (int k = 0; k<NumberOfParticles*2; k++) {
+    for (int k = 0; k<NumberOfParticles; k++) {
         sum += dot(Jgradient.col(k),Jgradient.col(k));
         for (int i = 0; i<k; i++) {
             sum +=(NumberOfDimensions -1)/R(i,k)*jastrowGradient(i,k) +jastrowLaplacian(i,k);
         }
-        for (int i = k+1; i < NumberOfParticles*2; i++) {
+        for (int i = k+1; i < NumberOfParticles; i++) {
             sum +=(NumberOfDimensions -1)/R(k,i)*jastrowGradient(k,i) +jastrowLaplacian(k,i);
         }
     }
     // 2 * (1/psi_J nabla psi_J dot 1/psi_S nabla psi_S)
-    double sum2 = 0;
-    for (int k = 0; k<NumberOfParticles*2; k++) {
-        sum2 += 2*dot(Jgradient.col(k),gradient.col(k));
-        cout << norm(Jgradient.col(k))<< endl;
+    for (int k = 0; k<NumberOfParticles; k++) {
+        sum += 2*dot(Jgradient.col(k),gradient.col(k));
     }
     //cout << sum << endl;
     sum_snitt += sum;
@@ -318,12 +310,12 @@ double Slater::computeJastrowEnergy() { //masse wastage!!
 
 void Slater::setUpJastrow() {
 
-    Jgradient = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
-    JgradientOld = zeros<mat>(NumberOfDimensions, NumberOfParticles*2);
-    jastrowLaplacian = zeros<mat>(NumberOfParticles*2, NumberOfParticles*2);
-    jastrowGradient = zeros<mat>(NumberOfParticles*2, NumberOfParticles*2);
+    Jgradient = zeros<mat>(NumberOfDimensions, NumberOfParticles);
+    JgradientOld = zeros<mat>(NumberOfDimensions, NumberOfParticles);
+    jastrowLaplacian = zeros<mat>(NumberOfParticles, NumberOfParticles);
+    jastrowGradient = zeros<mat>(NumberOfParticles, NumberOfParticles);
 
-    for (int i = 0; i < NumberOfParticles*2; i++) {
+    for (int i = 0; i < NumberOfParticles; i++) {
         this->computeJastrowGradient(i); // (R, jastrowGradient, i)
         this->computeJastrowLaplacian(i); // (R, jastrowLaplacian,i)
     }
@@ -333,16 +325,16 @@ void Slater::setUpJastrow() {
 
 //computes the gradient of the Slater part of the wavefunction
 void Slater::updateSlaterGradient(mat x, int i) {
-    int k = i %(NumberOfParticles); //the remainder
+    int k = i %(ParticlesInSlater); //the remainder
     vec sum = zeros<vec>(NumberOfDimensions);
-    for (int j = 0; j < (NumberOfParticles); j++) {
+    for (int j = 0; j < (ParticlesInSlater); j++) {
         sum += slaterInverse[whichSlater](j,k) * myorbital[j]->gradient(x.col(i), a, R(i,i));
     }
     gradient.col(i) = 1.0/this->Rsd * sum;
 }
 
 void Slater::makeJgradient(mat x) {
-    for (int k = 0; k < NumberOfParticles*2; k++) {
+    for (int k = 0; k < NumberOfParticles; k++) {
         for (int j =0 ; j < NumberOfDimensions; j++) {//we call the function jastrowgradient far too many times here, this should be done more effectively!!!!!
 
 
@@ -351,7 +343,7 @@ void Slater::makeJgradient(mat x) {
             for (int i = 0; i < k; i++) {
                 sum += (x(j,k)-x(j,i)) / R(i,k) * jastrowGradient(i,k);
             }
-            for (int i = k+1; i < NumberOfParticles*2; i++) {
+            for (int i = k+1; i < NumberOfParticles; i++) {
                 sum -= (x(j,i)-x(j,k)) / R(k,i) * jastrowGradient(k,i);
             }
 
@@ -361,8 +353,8 @@ void Slater::makeJgradient(mat x) {
 }
 
 void Slater::computeSlaterGradient(arma::mat x) {
-    for (int i = 0; i < NumberOfParticles*2; i++) {
-        whichSlater = i / NumberOfParticles;
+    for (int i = 0; i < NumberOfParticles; i++) {
+        whichSlater = i / ParticlesInSlater;
         updateSlaterGradient(x, i);
     }
 }
@@ -381,7 +373,7 @@ double Slater::computeGreensFunction(arma::mat x, arma::mat xOld) {
     }
 
     double greensFunction = 0;
-    for (int j = 0; j < NumberOfParticles*2; j++) {
+    for (int j = 0; j < NumberOfParticles; j++) {
         for (int i = 0; i < NumberOfDimensions; i++) {
             greensFunction += 0.5* (quantumForceOld(i,j) +
                                     quantumForceNew(i,j)) *
@@ -400,14 +392,14 @@ double Slater::computeGreensFunction(arma::mat x, arma::mat xOld) {
 */
 void Slater::fillSpinMatrix() {
     // Set which electrons have spins up, and which have spins down.
-    vec electronSpins(NumberOfParticles*2);
+    vec electronSpins(NumberOfParticles);
     electronSpins.zeros();
-    for (int i = 0; i < (NumberOfParticles); i++) {
+    for (int i = 0; i < (ParticlesInSlater); i++) {
         electronSpins(i) = 1;
     }
     // Set the electron-electron spin interaction matrix.
-    for (int i = 0; i < NumberOfParticles*2; i++) {
-        for (int j = i+1; j < NumberOfParticles*2; j++) {
+    for (int i = 0; i < NumberOfParticles; i++) {
+        for (int j = i+1; j < NumberOfParticles; j++) {
             if (electronSpins(i) != electronSpins(j)) {
                 spins(i,j) = 0.5;
             } else {
@@ -421,7 +413,7 @@ void Slater::fillSpinMatrix() {
 void Slater::setUpForMetropolis(mat &x) {
     acceptanceCounter = 0;
     arma::arma_rng::set_seed(200); // not sure if this helps
-    x = a/NumberOfParticles*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles*2); //comment this out when testing (until we find a better way)
+    x = a/ParticlesInSlater*randn<mat>(this->NumberOfDimensions, this->NumberOfParticles); //comment this out when testing (until we find a better way)
     this->makeR(x);
     this->fillSpinMatrix();
     this->fillCorrelationsMatrix();
@@ -429,7 +421,7 @@ void Slater::setUpForMetropolis(mat &x) {
     this->correlationsMatOld = this->correlationsMatNew;
     this->Rsd = 1;
     this->getSlaterInverse(x);
-    this->gradient = zeros<mat>(this->NumberOfDimensions, 2*this->NumberOfParticles);
+    this->gradient = zeros<mat>(this->NumberOfDimensions, 2*this->ParticlesInSlater);
     this->computeSlaterGradient(x);
     this->setUpJastrow();
     this->makeJgradient(x);

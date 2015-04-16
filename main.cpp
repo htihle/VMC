@@ -16,9 +16,11 @@ using namespace arma;
 
 
 
-int main() {
+int main()
+{
     int N = 5;    //# of different a's
     int n = 9e5;  //# of iterations in metropolis
+
     int numberofpart = 2;
     bool interacting = true;
 
@@ -33,6 +35,7 @@ int main() {
 
     vec a = linspace(numberofpart-1,numberofpart+1,N);
     vec en;
+
     for(int i= 0; i<N ; i++) {
         wave.a = 1.85;//a(i);
 
