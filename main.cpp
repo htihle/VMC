@@ -19,8 +19,8 @@ using namespace arma;
 int main()
 {
     int N = 30;    //# of different a's
-    int n = 3e6;  //# of iterations in metropolis
-    int numberofpart = 10;
+    int n = 3e5;  //# of iterations in metropolis
+    int numberofpart = 2;
     bool interacting = true;
 
     vec avec = zeros<vec>(2);
@@ -34,7 +34,7 @@ int main()
 
     vec a = linspace(numberofpart-1,numberofpart+1,N);
     vec en;
-    cout << randu<mat>(3,3) << endl;
+
     for(int i= 0; i<N ; i++) {
         wave.a = a(i);
 
